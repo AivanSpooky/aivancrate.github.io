@@ -1,0 +1,42 @@
+"""Migration: table punishments."""
+import sqlite3
+import os
+
+for p in [
+    os.path.join(os.path.dirname(__file__), 'aivancrate.db'),
+    os.path.join(os.path.dirname(__file__), 'instance', 'aivancrate.db'),
+]:
+    if os.path.exists(p):
+        DB_PATH = p
+        break
+else:
+    DB_PATH = os.path.join(os.path.dirname(__file__), 'aivancrate.db')
+
+
+def migrate():
+    if not os.path.exists(DB_PATH):
+        print("DB not found, skip migration")
+        return
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='punishments'")
+    if cur.fetchone() is None:
+        cur.execute("""
+            CREATE TABLE punishments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                player_id INTEGER NOT NULL REFERENCES players(id),
+                type INTEGER NOT NULL,
+                created_at DATETIME NOT NULL,
+                end_at DATETIME NOT NULL,
+                notes TEXT
+            )
+        """)
+        print("Created table punishments")
+    else:
+        print("Table punishments already exists")
+    conn.commit()
+    conn.close()
+
+
+if __name__ == '__main__':
+    migrate()

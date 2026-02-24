@@ -1,8 +1,8 @@
 """Routes for leaderboards and player profile."""
-from datetime import time
+from datetime import datetime, time
 from flask import Blueprint, render_template, request
 from sqlalchemy import func
-from models import db, Players, Completions, AivanLevels
+from models import db, Players, Completions, AivanLevels, Punishment
 from services.level_service import levels_by_creator_nickname
 
 top_bp = Blueprint('top', __name__)
@@ -203,6 +203,12 @@ def player_profile(player_id):
 
     creator_levels = levels_by_creator_nickname(player.nickname)
 
+    # В профиле показываем только активные наказания (не отменённые и ещё не истёкшие)
+    punishments = Punishment.query.filter_by(player_id=player.id).filter(
+        Punishment.cancelled_at.is_(None),
+        Punishment.end_at > datetime.utcnow()
+    ).order_by(Punishment.created_at.desc()).all()
+
     from flask import g
     current = g.get('current_player')
     is_self = current is not None and current.id == player.id
@@ -220,4 +226,5 @@ def player_profile(player_id):
         difficulty_options=DIFFICULTY_OPTIONS,
         current_difficulty=difficulty_filter,
         is_self=is_self,
+        punishments=punishments,
     )

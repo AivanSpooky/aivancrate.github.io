@@ -16,6 +16,17 @@ AivanCrate – {{ t.player_profile }}: {{ player.nickname }}
             <div class="player-rank-wrap {% if rank == 1 %}rank-1{% elif rank == 2 %}rank-2{% elif rank == 3 %}rank-3{% else %}rank-other{% endif %}">
                 {{ t.player_rank }}: #{{ rank or '—' }}
             </div>
+            {% if punishments %}
+            <div class="punishments-block mt-2 p-2 rounded">
+                <div class="small fw-medium text-danger mb-1">{{ t.pun_title_profile }}</div>
+                {% for pun in punishments %}
+                <div class="punishment-item text-danger small">
+                    {{ t.pun_type_block_applications }} — {{ t.pun_end_at }}: {{ pun.end_at.strftime('%Y-%m-%d %H:%M') if pun.end_at else '—' }}
+                    {% if pun.is_cancelled %}<span class="badge bg-secondary ms-1">{{ t.pun_status_cancelled }}</span>{% elif pun.is_active %}<span class="badge bg-danger ms-1">{{ t.pun_status_active }}</span>{% else %}<span class="badge bg-secondary ms-1">{{ t.pun_status_expired }}</span>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% if rank_peers|length > 1 %}
             <div class="rank-peers-box mt-3 p-3 rounded">
                 <div class="small text-muted mb-2">{{ t.top_share_rank_profile }}:</div>

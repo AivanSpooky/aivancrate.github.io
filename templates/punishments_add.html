@@ -1,0 +1,56 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.pun_add }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.pun_add }}</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if errors %}
+            <div class="alert alert-danger">
+                {% for e in errors %}
+                <div>{{ t[e] }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <form method="post" action="{{ url_for('applications.punishments_add') }}">
+                <div class="mb-3">
+                    <label for="player_id" class="form-label">{{ t.pun_player }}</label>
+                    <select name="player_id" id="player_id" class="form-select" required>
+                        <option value="">{{ t.pun_choose_player }}</option>
+                        {% for pl in players_list %}
+                        <option value="{{ pl.id }}" {% if player_id == pl.id|string %}selected{% endif %}>{{ pl.nickname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="type" class="form-label">{{ t.pun_type }}</label>
+                    <select name="type" id="type" class="form-select">
+                        <option value="1" {% if type == '1' or not type %}selected{% endif %}>{{ t.pun_type_block_applications }}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t.pun_duration }}</label>
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <input type="number" name="amount" class="form-control" style="width: 120px;" min="0.01" step="0.01" placeholder="1" value="{{ amount or '' }}" required>
+                        <select name="unit" class="form-select" style="width: auto;">
+                            <option value="minutes" {% if unit == 'minutes' %}selected{% endif %}>{{ t.pun_unit_minutes }}</option>
+                            <option value="hours" {% if unit == 'hours' %}selected{% endif %}>{{ t.pun_unit_hours }}</option>
+                            <option value="days" {% if unit == 'days' %}selected{% endif %}>{{ t.pun_unit_days }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="notes" class="form-label">{{ t.app_notes }}</label>
+                    <textarea name="notes" id="notes" class="form-control" rows="2" placeholder="{{ t.app_notes }}">{{ notes or '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ t.pun_add }}</button>
+                <a href="{{ url_for('applications.punishments_list') }}" class="btn btn-outline-secondary ms-2">{{ t.ext_back }}</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

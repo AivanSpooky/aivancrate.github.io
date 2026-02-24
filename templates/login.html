@@ -30,7 +30,11 @@ AivanCrate – {{ t.auth_login_title }}
                 <button type="submit" class="btn btn-primary w-100">{{ t.auth_submit }}</button>
             </form>
             <p class="text-center mt-3">
+                <a href="{{ url_for('applications.new_registration_application') }}" class="btn btn-outline-secondary me-2">{{ t.nav_registration }}</a>
                 <a href="{{ next or url_for('other.index') }}" class="text-muted">{{ t.ext_back }}</a>
+            </p>
+            <p class="text-center mt-2 small text-muted">
+                <a href="{{ url_for('applications.list_my_registration_applications') }}">{{ t.nav_my_registration }}</a>
             </p>
         </div>
     </div>

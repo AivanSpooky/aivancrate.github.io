@@ -1,0 +1,76 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.reg_my }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.reg_my }}</h1>
+    <p class="text-center mb-4">
+        <a href="{{ url_for('applications.new_registration_application') }}" class="btn btn-primary">{{ t.reg_title }}</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary ms-2">{{ t.auth_login_title }}</a>
+    </p>
+    {% if applications %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{{ t.app_created }}</th>
+                    <th>{{ t.reg_nickname }}</th>
+                    <th>{{ t.reg_version }}</th>
+                    <th>{{ t.reg_comment }}</th>
+                    <th>{{ t.levels_status }}</th>
+                    <th>{{ t.app_reply_column }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                {% set apr = ap_registrations.get(app.id) %}
+                <tr>
+                    <td>{{ app.id }}</td>
+                    <td>{{ app.updated_at.strftime('%Y-%m-%d %H:%M') if app.updated_at else app.created_at.strftime('%Y-%m-%d %H:%M') if app.created_at else '—' }}</td>
+                    <td>{% if apr %}{{ apr.nickname }}{% else %}—{% endif %}</td>
+                    <td>{% if apr %}{{ apr.version }}{% else %}—{% endif %}</td>
+                    <td class="small">{% if apr and apr.comment %}{{ apr.comment|truncate_chars(60) }}{% else %}—{% endif %}</td>
+                    <td>
+                        <span class="badge app-status app-status-{{ app.status }}">
+                            {% if app.status == 1 %}{{ t.app_status_1 }}{% endif %}
+                            {% if app.status == 2 %}{{ t.app_status_2 }}{% endif %}
+                            {% if app.status == 3 %}{{ t.app_status_3 }}{% endif %}
+                            {% if app.status == 4 %}{{ t.app_status_4 }}{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if app.notes %}
+                        <div class="d-flex align-items-start gap-2">
+                            {% if aivan_player %}
+                            <img src="/static/images/player_icons/{{ aivan_player.icon or 'aivan.png' }}" alt="" class="rounded-circle flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;">
+                            {% endif %}
+                            <span class="small">{{ app.notes }}</span>
+                        </div>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if (app.status == 1 or app.status == 4) and apr %}
+                        <a href="{{ url_for('applications.edit_registration_application', app_id=app.id) }}" class="btn btn-warning btn-sm">{{ t.reg_edit }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <style>.app-status-1{background:#6c757d;color:#fff}.app-status-2{background:#198754;color:#fff}.app-status-3{background:#dc3545;color:#fff}.app-status-4{background:#ffc107;color:#212529}</style>
+    {% else %}
+    <p class="text-center text-muted">{{ t.reg_no_applications }}</p>
+    {% endif %}
+    <div class="mt-4">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">{{ t.ext_back }}</a>
+    </div>
+</div>
+{% endblock %}

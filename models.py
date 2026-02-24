@@ -82,8 +82,9 @@ class Players(db.Model):
         return '<Players %r>' % self.id
 
 
-# Типы заявок: 1 — добавление прохождения
+# Типы заявок: 1 — добавление прохождения, 2 — регистрация
 APPLICATION_TYPE_ADD_COMPLETION = 1
+APPLICATION_TYPE_REGISTRATION = 2
 
 # Статусы заявки: 1 — в ожидании, 2 — принята, 3 — отменена, 4 — есть вопросы
 APPLICATION_STATUS_PENDING = 1
@@ -93,10 +94,11 @@ APPLICATION_STATUS_QUESTIONS = 4
 
 
 class Application(db.Model):
-    """Общая таблица заявок: игрок, тип, статус, даты, комментарий админа. Детали по типу — в отдельных таблицах."""
+    """Общая таблица заявок: игрок (или NULL для заявки на регистрацию до принятия), тип, статус, даты, комментарий админа."""
     __tablename__ = 'applications'
     id = db.Column(db.Integer, primary_key=True)
-    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=True)  # NULL для заявки на регистрацию до принятия
+    applicant_token = db.Column(db.String(64), nullable=True, index=True)  # для гостевых заявок (регистрация): привязка к cookie
     type = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer, nullable=False, default=APPLICATION_STATUS_PENDING)
     created_at = db.Column(db.DateTime, nullable=False)
@@ -105,6 +107,23 @@ class Application(db.Model):
 
     def __repr__(self):
         return '<Application %r>' % self.id
+
+
+class ApRegistration(db.Model):
+    """Заявка на регистрацию: ник, версия игры, пароль, иконка (файл на диске), комментарий от заявителя."""
+    __tablename__ = 'ap_registrations'
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=False, unique=True)
+    nickname = db.Column(db.String(64), nullable=False)
+    version = db.Column(db.String(32), nullable=False)  # формат: цифра.цифра
+    password_hash = db.Column(db.String(255), nullable=False)
+    icon_filename = db.Column(db.String(255), nullable=False)  # имя файла в uploads/registration_icons/
+    comment = db.Column(db.Text, nullable=True)  # комментарий заявителя (опционально)
+
+    application = db.relationship('Application', backref=db.backref('ap_registration', uselist=False), foreign_keys=[application_id])
+
+    def __repr__(self):
+        return '<ApRegistration %r>' % self.id
 
 
 class ApCompletion(db.Model):
@@ -161,3 +180,35 @@ class Rules(db.Model):
 
     def __repr__(self):
         return '<Rules %r>' % self.id
+
+
+# Типы наказаний: 1 — блокировка любых заявок от пользователя
+PUNISHMENT_TYPE_BLOCK_APPLICATIONS = 1
+
+
+class Punishment(db.Model):
+    """Наказание: тип, игрок, время назначения, время окончания (конкретные дата и время), комментарий. cancelled_at — отмена модератором."""
+    __tablename__ = 'punishments'
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
+    type = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
+    end_at = db.Column(db.DateTime, nullable=False)  # конечные дата и время действия наказания
+    cancelled_at = db.Column(db.DateTime, nullable=True)  # если задано — наказание отменено
+    notes = db.Column(db.Text, nullable=True)
+
+    player = db.relationship('Players', backref='punishments', foreign_keys=[player_id])
+
+    def __repr__(self):
+        return '<Punishment %r>' % self.id
+
+    @property
+    def is_active(self):
+        from datetime import datetime as _dt
+        if self.cancelled_at is not None:
+            return False
+        return _dt.utcnow() < self.end_at
+
+    @property
+    def is_cancelled(self):
+        return self.cancelled_at is not None

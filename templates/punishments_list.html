@@ -1,0 +1,82 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.pun_manage }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.pun_manage }}</h1>
+    <p class="text-center mb-3">
+        <a href="{{ url_for('applications.punishments_add') }}" class="btn btn-primary">{{ t.pun_add }}</a>
+        <a href="{{ url_for('applications.list_applications') }}" class="btn btn-outline-secondary ms-2">{{ t.app_title }}</a>
+    </p>
+
+    <form method="get" action="{{ url_for('applications.punishments_list') }}" class="mb-4 p-3 rounded d-flex flex-wrap align-items-end gap-3" style="background: #f8fafc;">
+        <div>
+            <label for="pun_filter_player" class="form-label mb-0">{{ t.app_filter_player }}</label>
+            <select name="player_id" id="pun_filter_player" class="form-select" style="width: auto;" onchange="this.form.submit()">
+                <option value="" {% if not current_player_id %}selected{% endif %}>{{ t.app_filter_player_all }}</option>
+                {% for pl in players_list %}
+                <option value="{{ pl.id }}" {% if current_player_id == pl.id|string %}selected{% endif %}>{{ pl.nickname }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-outline-primary">{{ t.app_filter_apply }}</button>
+    </form>
+
+    {% if punishments %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{{ t.pun_player }}</th>
+                    <th>{{ t.pun_type }}</th>
+                    <th>{{ t.pun_created }}</th>
+                    <th>{{ t.pun_end_at }}</th>
+                    <th>{{ t.pun_status }}</th>
+                    <th>{{ t.app_notes }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in punishments %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>
+                        {% if p.player_id in players %}
+                        <a href="{{ url_for('top.player_profile', player_id=p.player_id) }}">{{ players[p.player_id].nickname }}</a>
+                        {% else %}{{ p.player_id }}{% endif %}
+                    </td>
+                    <td>{{ t.pun_type_block_applications }}</td>
+                    <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else '—' }}</td>
+                    <td>{{ p.end_at.strftime('%Y-%m-%d %H:%M') if p.end_at else '—' }}</td>
+                    <td>
+                        {% if p.is_cancelled %}
+                        <span class="badge bg-secondary">{{ t.pun_status_cancelled }}</span>
+                        {% elif p.is_active %}
+                        <span class="badge bg-danger">{{ t.pun_status_active }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ t.pun_status_expired }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="small">{{ p.notes or '—' }}</td>
+                    <td>
+                        {% if not p.is_cancelled %}
+                        <form method="post" action="{{ url_for('applications.punishment_cancel', pun_id=p.id) }}" class="d-inline" onsubmit="return confirm('{{ t.pun_cancel_confirm }}');">
+                            {% if current_player_id %}<input type="hidden" name="player_id" value="{{ current_player_id }}">{% endif %}
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">{{ t.pun_cancel }}</button>
+                        </form>
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center text-muted">{{ t.pun_none }}</p>
+    {% endif %}
+</div>
+{% endblock %}

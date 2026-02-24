@@ -1,0 +1,46 @@
+{% extends 'mainh.html' %}
+
+{% block title %}AivanCrate – {{ t.app_edit_completion }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.app_edit_completion }} #{{ app.id }}</h1>
+    <p class="text-center text-muted small">{{ t.reg_edit_hint }}</p>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% if error == 'already_completed' %}
+            <div class="alert alert-warning">{{ t.app_already_completed }}</div>
+            {% endif %}
+            <form method="post" class="p-4 rounded" style="background: var(--panel-bg, #f8fafc);">
+                <div class="mb-3">
+                    <label for="level_id" class="form-label">{{ t.app_select_level }}</label>
+                    <select id="level_id" name="level_id" class="form-select" required>
+                        <option value="">—</option>
+                        {% for l in levels %}
+                        <option value="{{ l.id }}" {% if apc.level_id == l.id %}selected{% endif %}>{{ l.level_name }} ({{ l.creator_name or '—' }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="completion_date" class="form-label">{{ t.app_completion_date }}</label>
+                    <input type="date" id="completion_date" name="completion_date" class="form-control" value="{{ apc.completion_date.strftime('%Y-%m-%d') if apc.completion_date else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="completion_time" class="form-label">{{ t.app_completion_time }}</label>
+                    <input type="time" id="completion_time" name="completion_time" class="form-control" step="1" value="{{ apc.completion_time.strftime('%H:%M') if apc.completion_time else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="video_url" class="form-label">{{ t.app_video_url }}</label>
+                    <input type="url" id="video_url" name="video_url" class="form-control" placeholder="https://..." value="{{ apc.video_url or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="comment" class="form-label">{{ t.app_comment }}</label>
+                    <textarea id="comment" name="comment" class="form-control" rows="2" placeholder="{{ t.app_comment }}">{{ apc.comment or '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ t.app_submit }}</button>
+                <a href="{{ url_for('applications.list_applications') }}" class="btn btn-secondary ms-2">{{ t.ext_back }}</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

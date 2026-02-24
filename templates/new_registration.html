@@ -1,0 +1,60 @@
+{% extends 'mainh.html' %}
+
+{% block title %}AivanCrate – {{ t.reg_title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.reg_title }}</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% if errors %}
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    {% for e in errors %}
+                    <li>{{ t[e] if t[e] is defined else e }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <form method="post" enctype="multipart/form-data" class="p-4 rounded" style="background: var(--panel-bg, #f8fafc);">
+                <div class="mb-3">
+                    <label for="nickname" class="form-label">{{ t.reg_nickname }} *</label>
+                    <input type="text" id="nickname" name="nickname" class="form-control" required value="{{ nickname or '' }}" maxlength="64">
+                </div>
+                <div class="mb-3">
+                    <label for="version" class="form-label">{{ t.reg_version }} *</label>
+                    <input type="text" id="version" name="version" class="form-control" required placeholder="2.2" value="{{ version or '' }}" maxlength="32">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">{{ t.auth_password }} *</label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" required minlength="6">
+                        <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password" title="{{ t.auth_show_password }}">Show</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="icon" class="form-label">{{ t.reg_icon }} *</label>
+                    <input type="file" id="icon" name="icon" class="form-control" accept=".png,.jpg,.jpeg,.gif,.webp" required>
+                </div>
+                <div class="mb-3">
+                    <label for="comment" class="form-label">{{ t.reg_comment }}</label>
+                    <textarea id="comment" name="comment" class="form-control" rows="3" maxlength="1000" placeholder="{{ t.reg_comment_placeholder }}">{{ comment or '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ t.reg_submit }}</button>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary ms-2">{{ t.ext_back }}</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-target');
+        var input = document.getElementById(id);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Hide'; }
+        else { input.type = 'password'; btn.textContent = 'Show'; }
+    });
+});
+</script>
+{% endblock %}

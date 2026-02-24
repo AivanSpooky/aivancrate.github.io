@@ -22,6 +22,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aivancrate.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-change-in-production')
+    app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'instance', 'uploads')
+    app.config['REGISTRATION_ICONS_FOLDER'] = 'registration_icons'
+    app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024  # 4 MB для иконки
 
     db.init_app(app)
 
@@ -86,7 +89,7 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        for mod in ('migrate_extremes', 'migrate_completions_time', 'migrate_levels_creation_date', 'migrate_auth_applications', 'migrate_applications_ap_completions', 'migrate_ap_completions_time'):
+        for mod in ('migrate_extremes', 'migrate_completions_time', 'migrate_levels_creation_date', 'migrate_auth_applications', 'migrate_applications_ap_completions', 'migrate_ap_completions_time', 'migrate_registration_applications', 'migrate_punishments', 'migrate_punishments_cancelled', 'migrate_ap_registration_comment'):
             try:
                 __import__(mod).migrate()
             except Exception as e:

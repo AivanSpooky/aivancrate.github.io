@@ -1,0 +1,64 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.reg_edit }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.reg_edit }} #{{ app.id }}</h1>
+    <p class="text-center text-muted small">{{ t.reg_edit_hint }}</p>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% if errors %}
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    {% for e in errors %}
+                    <li>{{ t[e] if t[e] is defined else e }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <form method="post" enctype="multipart/form-data" class="p-4 rounded" style="background: var(--panel-bg, #f8fafc);">
+                <div class="mb-3">
+                    <label for="nickname" class="form-label">{{ t.reg_nickname }} *</label>
+                    <input type="text" id="nickname" name="nickname" class="form-control" required value="{{ nickname or apr.nickname }}" maxlength="64">
+                </div>
+                <div class="mb-3">
+                    <label for="version" class="form-label">{{ t.reg_version }} *</label>
+                    <input type="text" id="version" name="version" class="form-control" required placeholder="2.2" value="{{ version or apr.version }}" maxlength="32">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">{{ t.auth_password }} (оставьте пустым, чтобы не менять)</label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" minlength="6">
+                        <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password" title="{{ t.auth_show_password }}">👁</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="icon" class="form-label">{{ t.reg_icon }} (оставьте пустым, чтобы не менять)</label>
+                    <input type="file" id="icon" name="icon" class="form-control" accept=".png,.jpg,.jpeg,.gif,.webp">
+                    <small class="text-muted">Текущая: {{ apr.icon_filename }}</small>
+                </div>
+                <div class="mb-3">
+                    <label for="comment" class="form-label">{{ t.reg_comment }}</label>
+                    <textarea id="comment" name="comment" class="form-control" rows="3" maxlength="1000" placeholder="{{ t.reg_comment_placeholder }}">{{ comment or apr.comment or '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ t.reg_submit }}</button>
+                <a href="{{ url_for('applications.list_my_registration_applications') }}" class="btn btn-secondary ms-2">{{ t.ext_back }}</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-target');
+        var input = document.getElementById(id);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+        else { input.type = 'password'; btn.textContent = '👁'; }
+    });
+});
+</script>
+{% endblock %}
