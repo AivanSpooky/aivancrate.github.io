@@ -1,0 +1,103 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.player_profile }}: {{ player.nickname }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <div class="player-profile-layout">
+        <div class="player-cube-wrap">
+            <img src="/static/images/player_icons/{{ player.icon }}" alt="{{ player.nickname }}" class="player-cube-float">
+            <div class="player-nickname">{{ player.nickname }}</div>
+            <div class="player-rank-wrap {% if rank == 1 %}rank-1{% elif rank == 2 %}rank-2{% elif rank == 3 %}rank-3{% else %}rank-other{% endif %}">
+                {{ t.player_rank }}: #{{ rank or '—' }}
+            </div>
+            {% if rank_peers|length > 1 %}
+            <div class="rank-peers-box mt-3 p-3 rounded">
+                <div class="small text-muted mb-2">{{ t.top_share_rank_profile }}:</div>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    {% for peer in rank_peers %}
+                    <a href="{{ url_for('top.player_profile', player_id=peer.id) }}{% if current_difficulty %}?difficulty={{ current_difficulty }}{% endif %}" class="rank-peer-link btn btn-sm btn-outline-primary">{{ peer.nickname }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="player-achievements-panel">
+            <div class="tab-nav p-3" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                <button type="button" class="tab-btn active" data-tab="achievements">{{ t.player_achievements }}</button>
+                <button type="button" class="tab-btn" data-tab="creator">{{ t.player_creator_contribution }}</button>
+            </div>
+            <div class="tab-content p-0">
+                <div id="tab-achievements" class="tab-pane-content p-3">
+                    <form method="get" class="d-flex align-items-center gap-2 mb-3">
+                        <label for="difficulty" class="mb-0 small">{{ t.top_filter_difficulty }}:</label>
+                        <select name="difficulty" id="difficulty" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                            {% for val, label in difficulty_options %}
+                            <option value="{{ val }}" {% if (not current_difficulty and val == '') or (current_difficulty and current_difficulty == val|string) %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    {% for comp in completions %}
+                    <div class="player-achievement-item">
+                        <img src="/static/images/{{ comp.diff }}.png" alt="" class="me-3 flex-shrink-0" style="width: 32px; height: 32px; object-fit: contain;">
+                        <div class="flex-grow-1 min-width-0">
+                            <span class="fw-medium">#{{ loop.index }} – {{ comp.text|truncate_chars(52) }}</span>
+                            {% if comp.level_id in verifier_level_ids %}
+                            <span class="verificator-tag ms-2">{{ t.player_verificator }}</span>
+                            {% endif %}
+                            {% if comp.level_id in first_victor_level_ids %}
+                            <span class="tag-first-victor ms-2">{{ t.player_first_victor }}</span>
+                            {% endif %}
+                            {% if first_completed_level_id and comp.level_id == first_completed_level_id %}
+                            <span class="tag-first-completed ms-2">{{ t.player_first_completed_level }}</span>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('levels.level_detail', level_id=comp.level_id) }}" class="btn btn-sm btn-primary">{{ t.player_level_link }}</a>
+                    </div>
+                    {% endfor %}
+                    {% if not completions %}
+                    <div class="p-4 text-center text-muted">
+                        {{ t.player_no_achievements }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div id="tab-creator" class="tab-pane-content p-3" style="display: none;">
+                    {% for level in creator_levels %}
+                    <div class="player-achievement-item">
+                        <img src="/static/images/{{ level.difficulty }}.png" alt="" class="me-3 flex-shrink-0" style="width: 32px; height: 32px; object-fit: contain;">
+                        <div class="flex-grow-1 min-width-0">
+                            <span class="fw-medium">{{ level.level_name|truncate_chars(40) }}</span>
+                            <span class="text-muted small d-block">{{ level.creator_name|truncate_chars(35) }}</span>
+                        </div>
+                        <a href="{{ url_for('levels.level_detail', level_id=level.id) }}" class="btn btn-sm btn-primary">{{ t.player_level_link }}</a>
+                    </div>
+                    {% endfor %}
+                    {% if not creator_levels %}
+                    <div class="p-4 text-center text-muted">
+                        {{ t.player_no_creator_levels }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{{ url_for('top.top') }}" class="btn btn-secondary">← {{ t.nav_leaderboards }}</a>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = 'tab-' + this.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane-content').forEach(p => p.style.display = 'none');
+        this.classList.add('active');
+        const pane = document.getElementById(tabId);
+        if (pane) pane.style.display = 'block';
+    });
+});
+</script>
+{% endblock %}

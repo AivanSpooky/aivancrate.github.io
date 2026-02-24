@@ -1,0 +1,35 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.app_new_completion }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.app_new_completion }}</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% if error == 'already_completed' %}
+            <div class="alert alert-warning">{{ t.app_already_completed }}</div>
+            {% endif %}
+            <form method="post" class="p-4 rounded" style="background: var(--panel-bg, #f8fafc);">
+                <div class="mb-3">
+                    <label for="level_id" class="form-label">{{ t.app_select_level }}</label>
+                    <select id="level_id" name="level_id" class="form-select" required>
+                        <option value="">—</option>
+                        {% for l in levels %}
+                        <option value="{{ l.id }}">{{ l.level_name }} ({{ l.creator_name or '—' }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="completion_date" class="form-label">{{ t.app_completion_date }}</label>
+                    <input type="date" id="completion_date" name="completion_date" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">{{ t.app_submit }}</button>
+                <a href="{{ url_for('applications.list_applications') }}" class="btn btn-secondary ms-2">{{ t.ext_back }}</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

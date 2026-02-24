@@ -1,0 +1,14 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.player_unavailable_title }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <div class="text-center py-5">
+        <p class="lead text-muted">{{ t.player_unavailable_message }}</p>
+        <a href="{{ url_for('top.top') }}" class="btn btn-secondary mt-3">{{ t.nav_leaderboards }}</a>
+    </div>
+</div>
+{% endblock %}

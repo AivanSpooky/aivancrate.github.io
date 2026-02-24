@@ -1,0 +1,224 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.ext_time_machine }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.ext_time_machine }}</h1>
+    <p class="text-center text-muted mb-4">{{ t.ext_top_by_date }}</p>
+
+    <div class="time-machine-timeline-wrap mb-4 p-4 rounded">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted" id="tm-date-min">—</span>
+            <strong id="tm-date-current">{{ t.ext_timeline_date }}: —</strong>
+            <span class="small text-muted" id="tm-date-max">—</span>
+        </div>
+        <input type="range" class="form-range time-machine-slider" id="tm-slider" min="0" max="100" value="0" step="0.01">
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-center gap-3 mb-4">
+        <button type="button" class="btn btn-success" id="tm-play" title="{{ t.ext_play }}">▶ {{ t.ext_play }}</button>
+        <button type="button" class="btn btn-warning d-none" id="tm-pause" title="{{ t.ext_pause }}">⏸ {{ t.ext_pause }}</button>
+        <button type="button" class="btn btn-outline-secondary" id="tm-restart" title="{{ t.ext_restart }}">⏹ {{ t.ext_restart }}</button>
+        <div class="d-flex align-items-center gap-2">
+            <label for="tm-duration" class="mb-0 small">{{ t.ext_duration_min }}:</label>
+            <input type="number" id="tm-duration" class="form-control form-control-sm" value="5" min="1" max="120" style="width: 5rem;">
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 justify-content-center mb-3">
+        <label for="tm-per-page" class="mb-0 small">{{ t.pag_per_page }}:</label>
+        <select id="tm-per-page" class="form-select form-select-sm" style="width: auto;">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="0">{{ t.pag_all }}</option>
+        </select>
+    </div>
+
+    <div id="tm-list" class="fade-in-list"></div>
+    <p id="tm-pagination-info" class="small text-muted text-center mt-2 mb-0"></p>
+    <div id="tm-empty" class="text-center text-muted py-5 d-none">{{ t.player_no_achievements }}</div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('extremes.extremes_yearly_index') }}" class="btn btn-secondary">{{ t.ext_back }}</a>
+    </div>
+</div>
+
+<script id="tm-data" type="application/json">{{ timeline_data_json|safe }}</script>
+<script>
+(function() {
+    var detailUrlBase = "{{ url_for('extremes.extreme_detail', extreme_id=0) }}".replace('0', '');
+    var t = {
+        ext_details: "{{ t.ext_details|e }}",
+        ext_passed_on: "{{ t.ext_passed_on|e }}",
+        ext_tag_aivan: "{{ t.ext_tag_aivan|e }}",
+        ext_timeline_date: "{{ t.ext_timeline_date|e }}",
+        pag_of: "{{ t.pag_of|e }}",
+        pag_shown: "{{ t.pag_shown|e }}"
+    };
+    var raw = document.getElementById('tm-data').textContent;
+    var items = raw ? JSON.parse(raw) : [];
+    var noDataMsg = "{{ t.player_no_achievements|e }}";
+    if (!items.length) {
+        document.getElementById('tm-list').innerHTML = '<p class="text-center text-muted">' + noDataMsg + '</p>';
+        document.getElementById('tm-slider').disabled = true;
+        return;
+    }
+    var dateMin = new Date(items[0].compl_date);
+    var dateMax = new Date(items[items.length - 1].compl_date);
+    var rangeMs = dateMax - dateMin;
+    var slider = document.getElementById('tm-slider');
+    var dateCurrentEl = document.getElementById('tm-date-current');
+    var dateMinEl = document.getElementById('tm-date-min');
+    var dateMaxEl = document.getElementById('tm-date-max');
+    var listEl = document.getElementById('tm-list');
+    var emptyEl = document.getElementById('tm-empty');
+    var paginationInfoEl = document.getElementById('tm-pagination-info');
+    var perPageEl = document.getElementById('tm-per-page');
+    var playBtn = document.getElementById('tm-play');
+    var pauseBtn = document.getElementById('tm-pause');
+    var restartBtn = document.getElementById('tm-restart');
+    var durationInput = document.getElementById('tm-duration');
+
+    function formatDate(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    dateMinEl.textContent = formatDate(dateMin);
+    dateMaxEl.textContent = formatDate(dateMax);
+
+    function percentToDate(p) {
+        if (rangeMs <= 0) return dateMin;
+        return new Date(dateMin.getTime() + (p / 100) * rangeMs);
+    }
+    function dateToPercent(d) {
+        if (rangeMs <= 0) return 0;
+        return Math.min(100, Math.max(0, ((d - dateMin) / rangeMs) * 100));
+    }
+
+    function getFilteredAndSorted(currentDate) {
+        var d = currentDate.getTime ? currentDate.getTime() : new Date(currentDate).getTime();
+        return items
+            .filter(function(item) {
+                var itemTime = new Date(item.compl_date).getTime();
+                return itemTime <= d;
+            })
+            .sort(function(a, b) {
+                var ta = a.top == null ? 999999 : a.top;
+                var tb = b.top == null ? 999999 : b.top;
+                return ta - tb;
+            });
+    }
+
+    var isPlaybackActive = false;
+
+    function renderList(filtered, page, perPage, useEnterAnimation) {
+        if (useEnterAnimation === undefined) useEnterAnimation = true;
+        var total = filtered.length;
+        var start = perPage > 0 ? (page - 1) * perPage : 0;
+        var end = perPage > 0 ? Math.min(start + perPage, total) : total;
+        var slice = filtered.slice(start, end);
+        if (total === 0) {
+            listEl.classList.add('d-none');
+            paginationInfoEl.textContent = '';
+            emptyEl.classList.remove('d-none');
+            return;
+        }
+        emptyEl.classList.add('d-none');
+        listEl.classList.remove('d-none');
+        var endShow = perPage > 0 ? Math.min(start + perPage, total) : total;
+        paginationInfoEl.textContent = t.pag_shown + ' ' + (start + 1) + '-' + endShow + ' ' + t.pag_of + ' ' + total;
+        var enterClass = (useEnterAnimation && !isPlaybackActive) ? ' tm-item-enter' : '';
+        var html = '';
+        slice.forEach(function(item, i) {
+            var rank = start + i + 1;
+            var tagAivan = item.in_aivanlevels ? '<span class="tag-aivan ms-2">' + t.ext_tag_aivan + '</span>' : '';
+            html += '<div class="card mb-4 card-interactive tm-list-item' + enterClass + '" data-id="' + item.id + '">' +
+                '<div class="card-body tm-row">' +
+                '<a href="' + detailUrlBase + item.id + '" class="tm-item-img-wrap">' +
+                '<img src="' + (item.img_src || '') + '" alt="" class="rounded tm-item-img">' +
+                '</a>' +
+                '<div class="tm-item-meta">' +
+                '<span class="tm-item-title">#' + rank + ' – ' + (item.level_name || '') + '</span>' +
+                '<span class="tm-item-creator">' + (item.creator_name || '') + '</span>' +
+                '<span class="tm-item-date">' + t.ext_passed_on + ': ' + (item.compl_date || '—') + '</span>' +
+                (item.in_aivanlevels ? '<span class="tag-aivan">' + t.ext_tag_aivan + '</span>' : '') +
+                '<a href="' + detailUrlBase + item.id + '" class="btn btn-primary btn-sm">' + t.ext_details + '</a>' +
+                '</div></div></div>';
+        });
+        listEl.innerHTML = html;
+    }
+
+    function updateFromSlider(skipAnimation) {
+        var p = parseFloat(slider.value);
+        var currentDate = percentToDate(p);
+        dateCurrentEl.textContent = t.ext_timeline_date + ': ' + formatDate(currentDate);
+        var filtered = getFilteredAndSorted(currentDate);
+        var perPage = parseInt(perPageEl.value, 10) || 0;
+        var total = filtered.length;
+        var pages = perPage > 0 ? Math.ceil(total / perPage) || 1 : 1;
+        var page = 1;
+        renderList(filtered, page, perPage, !skipAnimation);
+    }
+
+    slider.addEventListener('input', updateFromSlider);
+    perPageEl.addEventListener('change', function() { updateFromSlider(); });
+
+    var animId = null;
+    var animStart = null;
+    var animFromPercent = 0;
+
+    function stopPlayback() {
+        if (animId) {
+            cancelAnimationFrame(animId);
+            animId = null;
+        }
+        isPlaybackActive = false;
+        playBtn.classList.remove('d-none');
+        pauseBtn.classList.add('d-none');
+    }
+
+    function runPlayback() {
+        var durationMin = parseFloat(durationInput.value) || 5;
+        if (durationMin < 0.1) durationMin = 0.1;
+        var durationMs = durationMin * 60 * 1000;
+        var startPercent = parseFloat(slider.value);
+        animFromPercent = startPercent;
+        if (startPercent >= 100) {
+            stopPlayback();
+            return;
+        }
+        isPlaybackActive = true;
+        animStart = performance.now();
+        playBtn.classList.add('d-none');
+        pauseBtn.classList.remove('d-none');
+
+        function tick(now) {
+            var elapsed = now - animStart;
+            var progress = Math.min(1, elapsed / durationMs);
+            var p = animFromPercent + (100 - animFromPercent) * progress;
+            slider.value = p;
+            updateFromSlider(true);
+            if (progress < 1) {
+                animId = requestAnimationFrame(tick);
+            } else {
+                stopPlayback();
+            }
+        }
+        animId = requestAnimationFrame(tick);
+    }
+
+    playBtn.addEventListener('click', runPlayback);
+    pauseBtn.addEventListener('click', stopPlayback);
+    restartBtn.addEventListener('click', function() {
+        stopPlayback();
+        slider.value = 0;
+        updateFromSlider();
+    });
+
+    updateFromSlider();
+})();
+</script>
+{% endblock %}

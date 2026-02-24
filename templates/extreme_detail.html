@@ -1,0 +1,84 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ extreme.level_name }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <div class="level-detail-layout">
+        <div class="level-info-panel">
+            <img src="{{ img_src or extreme.img }}" alt="{{ extreme.level_name }}" class="img-fluid w-100" style="max-height: 400px; object-fit: cover;">
+            <div class="p-4">
+                <h1 class="h3 mb-3">{{ extreme.level_name }}</h1>
+                <p class="text-muted mb-2"><strong>{{ t.levels_author }}:</strong> {{ extreme.creator_name }}</p>
+                <p class="text-muted mb-2"><strong>#{{ extreme.top }}</strong></p>
+                {% if aivan_level and aivan_level.top is not none and aivan_level.top_diff is not none %}
+                <div class="mb-3">
+                    <span class="tag-aivan">{{ t.ext_tag_aivan }}</span>
+                </div>
+                {% endif %}
+                <hr>
+                <p class="text-muted mb-2"><strong>{{ t.ext_attempts }}:</strong> {{ extreme.attempts or '—' }}</p>
+                <p class="text-muted mb-2"><strong>{{ t.ext_fps }}:</strong> {{ extreme.fps or '—' }}</p>
+                <p class="text-muted mb-2"><strong>{{ t.ext_completion_date }}:</strong> {{ extreme.compl_date or '—' }}</p>
+                {% if extreme.enjoyment is not none %}
+                <p class="text-muted mb-0"><strong>{{ t.ext_enjoyment }}:</strong> {{ extreme.enjoyment }}/10</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="level-tabs-panel">
+            <div class="tab-nav">
+                <button type="button" class="tab-btn active" data-tab="video">{{ t.ext_completion_video }}</button>
+                {% if aivan_level %}
+                <button type="button" class="tab-btn" data-tab="levelinfo">{{ t.ext_level_info }}</button>
+                {% endif %}
+            </div>
+            <div class="tab-content">
+                <div id="tab-video" class="tab-pane-content">
+                    {% if yt_id %}
+                    <div class="ratio ratio-16x9 mb-3">
+                        <iframe src="https://www.youtube.com/embed/{{ yt_id }}" allowfullscreen></iframe>
+                    </div>
+                    {% elif extreme.completion %}
+                    <div class="p-4 rounded text-center" style="background: #f1f5f9;">
+                        <p class="text-muted mb-0">{{ t.ext_no_video }}</p>
+                        <a href="{{ extreme.completion }}" target="_blank" class="btn btn-link mt-2">{{ t.ext_completion_video }}</a>
+                    </div>
+                    {% else %}
+                    <div class="p-5 rounded text-center" style="background: #f1f5f9;">
+                        <p class="text-muted mb-0">{{ t.ext_no_video }}</p>
+                    </div>
+                    {% endif %}
+                    {% if extreme.opinion %}
+                    <h5 class="mt-4 mb-2">{{ t.ext_opinion }}</h5>
+                    <p class="text-muted">{{ extreme.opinion }}</p>
+                    {% endif %}
+                </div>
+                {% if aivan_level %}
+                <div id="tab-levelinfo" class="tab-pane-content" style="display: none;">
+                    <p class="text-muted mb-3">{{ t.ext_level_info_desc }}</p>
+                    <a href="{{ url_for('levels.level_detail', level_id=aivan_level.id) }}" class="btn btn-primary">{{ t.levels_details }} → {{ aivan_level.level_name }}</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{{ url_for('extremes.extremes') }}" class="btn btn-secondary">{{ t.ext_back }}</a>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = 'tab-' + this.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane-content').forEach(p => p.style.display = 'none');
+        this.classList.add('active');
+        const pane = document.getElementById(tabId);
+        if (pane) pane.style.display = 'block';
+    });
+});
+</script>
+{% endblock %}

@@ -1,138 +1,94 @@
-from this import d
-from flask import Flask, redirect, render_template, url_for, request, redirect
-from flask_sqlalchemy import SQLAlchemy
+"""AivanCrate - Flask application entry point."""
+import os
+from flask import Flask, request, g, make_response
+from models import db
+from i18n import get_translations, get_lang_from_request
 
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///top.db'
-db_top = SQLAlchemy(app)
+from models import (
+    AivanExtremes, Genres, AivanLevels, Players, Completions,
+    ReplacementSongs, Rules
+)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///aivanextremes.db'
-db_ex = SQLAlchemy(app)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///aivanelevels.db'
-db_l = SQLAlchemy(app)
-
-
-
-class Article(db_ex.Model):
-    id = db_ex.Column(db_ex.Integer, primary_key=True)
-    level_name = db_ex.Column(db_ex.String, nullable=True)
-    creator_name = db_ex.Column(db_ex.String, nullable=True)
-    img = db_ex.Column(db_ex.String, nullable=True)
-
-    attempts = db_ex.Column(db_ex.String, nullable=True)
-    device = db_ex.Column(db_ex.String, nullable=True)
-    fps = db_ex.Column(db_ex.String, nullable=True)
-    opinion = db_ex.Column(db_ex.Text, nullable=True)
-    difficulty = db_ex.Column(db_ex.Integer, nullable=True)
-
-    def __repr__(self):
-        return '<Article %r>' % self.id
+from routes.levels import levels_bp
+from routes.extremes import extremes_bp
+from routes.top import top_bp
+from routes.other import other_bp
+from routes.auth import auth_bp
+from routes.applications import applications_bp
 
 
-class Article_l(db_l.Model):
-    id = db_l.Column(db_l.Integer, primary_key=True)
-    level_name = db_l.Column(db_l.String, nullable=True)
-    creator_name = db_l.Column(db_l.String, nullable=True)
-    img = db_l.Column(db_l.String, nullable=True)
-    difficulty = db_l.Column(db_l.Integer, nullable=True)
-    state = db_l.Column(db_l.String, nullable=True)
+def create_app():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aivancrate.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-change-in-production')
 
-    def __repr__(self):
-        return '<Article_l %r>' % self.id
+    db.init_app(app)
 
+    app.register_blueprint(levels_bp)
+    app.register_blueprint(extremes_bp)
+    app.register_blueprint(top_bp)
+    app.register_blueprint(other_bp)
+    app.register_blueprint(auth_bp, url_prefix='')
+    app.register_blueprint(applications_bp, url_prefix='')
 
-class Article_top(db_top.Model):
-    id = db_top.Column(db_top.Integer, primary_key=True)
-    nickname = db_top.Column(db_top.String, nullable=True)
+    @app.before_request
+    def set_lang():
+        g.lang = get_lang_from_request(request)
 
-    top5_diff = db_top.Column(db_top.String, nullable=True)
-    top5_text = db_top.Column(db_top.String, nullable=True)
-    top4_diff = db_top.Column(db_top.String, nullable=True)
-    top4_text = db_top.Column(db_top.String, nullable=True)
-    top3_diff = db_top.Column(db_top.String, nullable=True)
-    top3_text = db_top.Column(db_top.String, nullable=True)
-    top2_diff = db_top.Column(db_top.String, nullable=True)
-    top2_text = db_top.Column(db_top.String, nullable=True)
-    top1_diff = db_top.Column(db_top.String, nullable=True)
-    top1_text = db_top.Column(db_top.String, nullable=True)
+    @app.before_request
+    def set_current_player():
+        from routes.auth import get_current_player
+        g.current_player = get_current_player()
 
-    version = db_top.Column(db_top.String, nullable=True)
-    icon = db_top.Column(db_top.String, nullable=True)
+    @app.template_filter('truncate_chars')
+    def truncate_chars(s, length=50):
+        """Обрезает строку до length символов и добавляет '...' если длиннее."""
+        if s is None:
+            return ''
+        s = str(s)
+        if len(s) <= length:
+            return s
+        return s[:length].rstrip() + '...'
 
-    def __repr__(self):
-        return '<Article_top %r>' % self.id
+    @app.context_processor
+    def inject_i18n():
+        from urllib.parse import urlencode
+        t = get_translations(getattr(g, 'lang', 'ru'))
+        lang = getattr(g, 'lang', 'ru')
 
+        def lang_url(l):
+            args = request.args.to_dict(flat=False)
+            args['lang'] = [l]
+            return request.path + '?' + urlencode(args, doseq=True)
+        return dict(t=t, lang=lang, lang_url=lang_url, current_player=g.get('current_player'))
 
-@app.route('/')
-def index():
-    return render_template("main.html")
+    @app.after_request
+    def set_lang_cookie(response):
+        if request.args.get('lang') and request.args.get('lang') in ('ru', 'en'):
+            response.set_cookie('lang', request.args.get('lang'), max_age=60*60*24*365)
+        return response
 
-@app.route('/pass', methods=['POST', 'GET'])
-def passw():
-    if request.method == "POST":
-        passwo = request.form['passwo']
-        if passwo == "95877":
-            return redirect('/ax')
-        else:
-            return render_template("cr_pass.html", notpas=True)
-    else:
-        return render_template("cr_pass.html", notpas=False)
-
-@app.route('/aboutaivan')
-def aboutaivan():
-    return render_template("aboutaivan.html")
-
-@app.route('/rules')
-def rules():
-    return render_template("rules.html")
-
-@app.route('/ax', methods=['POST', 'GET'])
-def create_ax():
-    if request.method == "POST":
-        level_name = request.form['level_name']
-        creator_name = request.form['creator_name']
-        img = request.form['img']
-
-        attempts = request.form['attempts']
-        device = request.form['device']
-        fps = request.form['fps']
-        opinion = request.form['opinion']
-
-        difficulty = request.form['difficulty']
-
-        article = Article(level_name=level_name, creator_name=creator_name, img=img, attempts=attempts, device=device, fps=fps, opinion=opinion, difficulty=difficulty)
-
-        try:
-            db_ex.session.add(article)
-            db_ex.session.commit()
-            return redirect('/')
-        except:
-            return 'Ошибка заполнения данных'
+    return app
 
 
-    else:
-        return render_template("create_ax.html")
+app = create_app()
 
 
-@app.route('/aivanextremes')
-def extremes():
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///aivanextremes.db'
-    articles = Article.query.order_by(Article.difficulty).all()
-    return render_template("aivanextremes.html", articles=articles)
-
-@app.route('/aivanlevels')
-def levels():
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///aivanlevels.db'
-    articles = Article_l.query.order_by(Article_l.id).all()
-    return render_template("aivanlevels.html", articles=articles)
-
-@app.route('/top')
-def top():
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///top.db'
-    articles = Article_top.query.order_by(Article_top.id).all()
-    return render_template("top.html", articles=articles)
+@app.cli.command()
+def init_db():
+    """Create database tables."""
+    with app.app_context():
+        db.create_all()
+        print('Database initialized.')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        for mod in ('migrate_extremes', 'migrate_completions_time', 'migrate_levels_creation_date', 'migrate_auth_applications'):
+            try:
+                __import__(mod).migrate()
+            except Exception as e:
+                print(f"Migration {mod}: {e}")
     app.run(debug=True)

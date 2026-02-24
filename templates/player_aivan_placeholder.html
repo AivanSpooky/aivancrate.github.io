@@ -1,0 +1,18 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.player_profile }}: Aivan
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <div class="aivan-placeholder">
+        <div class="aivan-placeholder-bg"></div>
+        <img src="/static/images/player_icons/aivan.png" alt="Aivan" class="aivan-placeholder-cube">
+        <p class="aivan-placeholder-text">{{ t.player_aivan_message }}</p>
+    </div>
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('top.top') }}" class="btn btn-secondary">← {{ t.nav_leaderboards }}</a>
+    </div>
+</div>
+{% endblock %}

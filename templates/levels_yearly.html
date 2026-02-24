@@ -1,0 +1,50 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.levels_yearly_stats }}{% if year %} {{ year }}{% endif %}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.levels_yearly_stats }}</h1>
+    {% if years|length > 1 %}
+    <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+        {% for y in years %}
+        <a href="{{ url_for('levels.levels_by_year', year=y) }}" class="btn btn-outline-primary btn-sm {% if y == year %}active{% endif %}">{{ y }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if year %}
+    <p class="text-center lead mb-4">
+        {{ t.levels_year_created_count|replace('{year}', year|string)|replace('{n}', count|string) }}
+    </p>
+    <div class="fade-in-list">
+        {% for el in levels %}
+        <div class="card mb-4 card-interactive list-item">
+            <div class="card-body d-flex align-items-center">
+                <a href="{{ url_for('levels.level_detail', level_id=el.id) }}">
+                    <img src="/static/images/aivanl/{{ el.img }}" alt="{{ el.level_name }}" class="me-3 rounded" style="width: 150px; height: auto;">
+                </a>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        {% if el.difficulty is not none %}
+                        <img src="/static/images/{{ el.difficulty }}.png" alt="{{ t.levels_difficulty }}" class="rounded" style="width: 40px; height: auto;">
+                        {% endif %}
+                        <h5 class="mb-0">{{ el.level_name }}</h5>
+                    </div>
+                    <p class="text-muted mb-2"><i>{{ t.levels_author }}: {{ el.creator_name }}</i></p>
+                    <p class="text-muted small mb-2">{{ t.levels_created_on }}: {{ el.creation_date or '—' }}</p>
+                    <a href="{{ url_for('levels.level_detail', level_id=el.id) }}" class="btn btn-primary btn-sm">{{ t.levels_details }}</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">{{ t.player_no_achievements if lang == 'ru' else 'No creation dates in database.' }}</p>
+    {% endif %}
+    <div class="mt-4">
+        <a href="{{ url_for('levels.levels') }}" class="btn btn-secondary">{{ t.levels_back }}</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+-- Create and populate aivanextremes
+CREATE TABLE IF NOT EXISTS aivanextremes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    top INTEGER,
+    level_name TEXT,
+    creator_name TEXT,
+    img TEXT,
+    attempts TEXT,
+    device TEXT,
+    fps TEXT,
+    opinion TEXT,
+    difficulty INTEGER
+);
+ATTACH DATABASE 'C:\Users\User\Desktop\coding\aivanweb\instance\aivanextremes.db' AS ext;
+INSERT INTO aivanextremes (id, top, level_name, creator_name, img, attempts, device, fps, opinion, difficulty)
+SELECT id, top, level_name, creator_name, img, attempts, device, fps, opinion, difficulty FROM ext.article;
+DETACH DATABASE ext;
+
+-- Create and populate aivanlevels (with new fields)
+CREATE TABLE IF NOT EXISTS aivanlevels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    top INTEGER,
+    top_diff INTEGER,
+    level_name TEXT,
+    creator_name TEXT,
+    img TEXT,
+    difficulty INTEGER,
+    state TEXT,
+    level_id INTEGER,
+    points INTEGER,
+    song_replacement BOOLEAN DEFAULT 0
+);
+ATTACH DATABASE 'C:\Users\User\Desktop\coding\aivanweb\instance\aivanlevels.db' AS lev;
+INSERT INTO aivanlevels (id, top, top_diff, level_name, creator_name, img, difficulty, state)
+SELECT id, top, top_diff, level_name, creator_name, img, difficulty, state FROM lev.article_l;
+DETACH DATABASE lev;
+
+-- Create and populate players
+CREATE TABLE IF NOT EXISTS players (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    top INTEGER,
+    nickname TEXT,
+    top5_diff TEXT,
+    top5_text TEXT,
+    top4_diff TEXT,
+    top4_text TEXT,
+    top3_diff TEXT,
+    top3_text TEXT,
+    top2_diff TEXT,
+    top2_text TEXT,
+    top1_diff TEXT,
+    top1_text TEXT,
+    version TEXT,
+    icon TEXT
+);
+ATTACH DATABASE 'C:\Users\User\Desktop\coding\aivanweb\instance\top.db' AS tp;
+INSERT INTO players (id, top, nickname, top5_diff, top5_text, top4_diff, top4_text, top3_diff, top3_text, top2_diff, top2_text, top1_diff, top1_text, version, icon)
+SELECT id, top, nickname, top5_diff, top5_text, top4_diff, top4_text, top3_diff, top3_text, top2_diff, top2_text, top1_diff, top1_text, version, icon FROM tp.article_top;
+DETACH DATABASE tp;
+
+-- Create new linking table for completions
+CREATE TABLE IF NOT EXISTS completions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    level_id INTEGER,
+    player_id INTEGER,
+    FOREIGN KEY (level_id) REFERENCES aivanlevels(id) ON DELETE CASCADE,
+    FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
+);
+
+-- Create replacementsongs table
+CREATE TABLE IF NOT EXISTS replacementsongs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    song_name TEXT,
+    author_name TEXT,
+    link TEXT
+);
+
+
+
+
+ALTER TABLE players DROP COLUMN top5_diff;
+ALTER TABLE players DROP COLUMN top5_text;
+ALTER TABLE players DROP COLUMN top4_diff;
+ALTER TABLE players DROP COLUMN top4_text;
+ALTER TABLE players DROP COLUMN top3_diff;
+ALTER TABLE players DROP COLUMN top3_text;
+ALTER TABLE players DROP COLUMN top2_diff;
+ALTER TABLE players DROP COLUMN top2_text;
+ALTER TABLE players DROP COLUMN top1_diff;
+ALTER TABLE players DROP COLUMN top1_text;
+
+
+
+-- Create temporary table without dropped columns
+CREATE TABLE players_temp (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    top INTEGER,
+    nickname TEXT,
+    version TEXT,
+    icon TEXT
+);
+
+-- Copy data (excluding dropped columns)
+INSERT INTO players_temp (id, top, nickname, version, icon)
+SELECT id, top, nickname, version, icon FROM players;
+
+-- Drop original table
+DROP TABLE players;
+
+-- Rename temp to original
+ALTER TABLE players_temp RENAME TO players;
+
+ALTER TABLE players DROP COLUMN top;
+ALTER TABLE players ADD COLUMN display_this BOOLEAN DEFAULT TRUE;
+
+-- Create temp table without 'top', with new 'display_this'
+CREATE TABLE players_temp (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nickname TEXT,
+    version TEXT,
+    icon TEXT,
+    display_this BOOLEAN DEFAULT TRUE
+);
+
+-- Copy data
+INSERT INTO players_temp (id, nickname, version, icon)
+SELECT id, nickname, version, icon FROM players;
+
+-- Drop original
+DROP TABLE players;
+
+-- Rename temp
+ALTER TABLE players_temp RENAME TO players;

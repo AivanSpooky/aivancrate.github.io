@@ -1,18 +1,61 @@
 {% extends 'mainh.html' %}
 
 {% block title %}
-aivancrate       
+AivanCrate - Правила / Rules
 {% endblock %}
 
 {% block body %}
-<div class="container mt-5" style="padding-left: 15px">
-    <h2 id="405-not-allowed" class="has-anchor-hash" style="padding: 0px; margin: 0px; font-size: 45px; text-align: center;">   Однако вы можеете...<a class="anchor-hash" href="#405-not-allowed" aria-hidden="true"></a></h2>
-    <h3 style="text-align: left"><i> Написать мне в <a href="https://vk.com/cutesp00ky">вк</a> или дискорд(sp00ky#6907) и предложить, что можно ещё добавить на сайт. Обязательно послушаю))</i></h3>
-</div>
+<style>
+    .text-orange { color: orange; }
+</style>
 {% endblock %}
 
 {% block center %}
-<h2 id="405-not-allowed" class="has-anchor-hash" style="padding: 0px; margin: 0px; font-size: 45px; text-align: center;">Правила??<a class="anchor-hash" href="#405-not-allowed" aria-hidden="true"></a></h2>
-<h4 id="405-not-allowed" class="has-anchor-hash" style="padding: 0px; margin: 0px; font-size: 30px; text-align: center;">ИХ НЕТ! Я - ЕДИНСТВЕННЫЙ МОДЕРАТОР!!<a class="anchor-hash" href="#405-not-allowed" aria-hidden="true"></a></h4>
-
+<div class="container mt-5">
+    <h2 class="text-center mb-5">{{ t.rules_title }}</h2>
+    
+    {% for prio in sorted_prios %}
+        {% set rules_list = grlst[prio] %}
+        
+        {# Header color class #}
+        {% set header_color_class = '' %}
+        {% if prio == 1 %}
+            {% set header_color_class = 'text-danger' %}
+        {% elif prio == 2 %}
+            {% set header_color_class = 'text-orange' %}
+        {% elif prio == 3 %}
+            {% set header_color_class = 'text-warning' %}
+        {% endif %}
+        
+        {# Description for each priority #}
+        {% if prio == 1 %}
+            <h4 class="fs-3 text-start {{ header_color_class }} mb-3">{{ t.rules_main }}</h4>
+        {% elif prio == 2 %}
+            <h4 class="fs-3 text-start {{ header_color_class }} mb-3">{{ t.rules_secondary }}</h4>
+        {% elif prio == 3 %}
+            <h4 class="fs-3 text-start {{ header_color_class }} mb-3">{{ t.rules_warnings }}</h4>
+        {% endif %}
+        
+        {# Color based on priority for list items #}
+        {% set color_class = '' %}
+        {% if prio == 1 %}
+            {% set color_class = 'text-danger' %}  {# Bright red #}
+        {% elif prio == 2 %}
+            {% set color_class = 'text-orange' %}  {# Orange #}
+        {% elif prio == 3 %}
+            {% set color_class = 'text-warning' %}  {# Yellow #}
+        {% endif %}
+        
+        {% for rule in rules_list %}
+            <div class="card mb-4">
+                <div class="card-body {{ color_class }}">
+                    ({{ rule.rule_prio }}_{{ rule.rule_number }}):<br>
+                    {{ rule.rule_desc_ru if lang == 'ru' else (rule.rule_desc_en or rule.rule_desc_ru) }}
+                </div>
+            </div>
+        {% endfor %}
+        
+        <div class="mb-5"></div>  {# Extra margin between priorities #}
+    {% endfor %}
+</div>
 {% endblock %}

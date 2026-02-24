@@ -1,15 +1,19 @@
 {% extends 'mainh.html' %}
 
 {% block title %}
-aivancrate       
+AivanCrate - Главная
 {% endblock %}
 
 {% block body %}
-<h2 id="405-not-allowed" class="has-anchor-hash" style="padding: 0px; margin: 0px; font-size: 45px; text-align: center;">ВСЕМ ДОРОУ! С ВАМИ АЙВАН И СЕЙЧАС Я ВАМ РАССКАЖУ, ЧТО Я ТУТ НАПРОГАЛ!<a class="anchor-hash" href="#405-not-allowed" aria-hidden="true"></a></h2>
-<p style="text-align: center; font-size: 25px;">Идея создания сайта, где я и мои друзья могут чекать свою статистику по Geometry Dash, пришла ещё давно в году 2020-ом, но руки дотянулись сделать его только сейчас в 2022. Я очень хотел сделать сайт по типу <a href="https://pointercrate.com/">pointercrate.com</a>, на котором буду только я и мои друзья. И это реально меня вдохновило создать свой первый сайт! Конечно, WEB-разработчик из меня пока никакущий, но я, действительно, постарался над своим первым сайтом.</p>
-<h4 id="405-not-allowed" class="has-anchor-hash" style="padding: 0px; margin: 0px; font-size: 30px; text-align: center;">НАСЛАЖДАЙТЕСЬ!<a class="anchor-hash" href="#405-not-allowed" aria-hidden="true"></a></h4>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">{{ t.main_title }}</h2>
+    <p class="text-center">{{ t.main_text }} <a href="https://pointercrate.com/" class="text-orange-500 hover:underline">pointercrate.com</a>, {{ t.main_text_suffix }}</p>
+    <h4 class="text-center mt-4">{{ t.main_enjoy }}</h4>
+</div>
 {% endblock %}
 
 {% block center %}
-<figure class="wp-block-image size-large is-resized" style="padding: 0px; margin: 0px; text-align: center;"><img loading="lazy" src="static/images/title.png" alt="info navigation logo" class="wp-image-42553" width="1280" height="720"></figure>
+<div class="container mt-5">
+    <img src="static/images/title.png" alt="AivanCrate Logo" class="img-fluid rounded" style="max-width: 100%; height: auto;">
+</div>
 {% endblock %}

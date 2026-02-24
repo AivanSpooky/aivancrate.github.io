@@ -1,0 +1,56 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.ext_yearly_stats }}{% if year %} {{ year }}{% endif %}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.ext_yearly_stats }}</h1>
+    <div class="text-center mb-4">
+        <a href="{{ url_for('extremes.time_machine') }}" class="btn btn-outline-primary">🕐 {{ t.ext_time_machine }}</a>
+    </div>
+    {% if years|length > 1 %}
+    <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+        {% for y in years %}
+        <a href="{{ url_for('extremes.extremes_by_year', year=y) }}" class="btn btn-outline-primary btn-sm {% if y == year %}active{% endif %}">{{ y }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% if year %}
+    <p class="text-center lead mb-4">
+        {{ t.ext_year_count|replace('{year}', year|string)|replace('{n}', count|string) }}
+    </p>
+    <div class="fade-in-list">
+        {% for el in articles %}
+        <div class="card mb-4 card-interactive list-item">
+            <div class="card-body d-flex align-items-center">
+                <a href="{{ url_for('extremes.extreme_detail', extreme_id=el.id) }}">
+                    <img src="{{ el.img_src or el.img or '' }}" alt="{{ el.level_name }}" class="me-3 rounded" style="width: 150px; height: auto;">
+                </a>
+                <div class="flex-grow-1">
+                    <h5 class="mb-2">#{{ el.top }} – {{ el.level_name }}</h5>
+                    <p class="text-muted mb-2"><i>{{ el.creator_name }}</i></p>
+                    <p class="text-muted small mb-2">{{ t.ext_passed_on }}: {{ el.compl_date or '—' }}</p>
+                    {% if el.enjoyment is not none %}
+                    <p class="text-muted small mb-2">{{ t.ext_enjoyment }}: {{ el.enjoyment }}/10</p>
+                    {% endif %}
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        {% if el.in_aivanlevels %}
+                        <span class="tag-aivan">{{ t.ext_tag_aivan }}</span>
+                        {% endif %}
+                        <a href="{{ url_for('extremes.extreme_detail', extreme_id=el.id) }}" class="btn btn-primary btn-sm">{{ t.ext_details }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">{{ t.player_no_achievements if lang == 'ru' else 'No completion dates in database.' }}</p>
+    {% endif %}
+    <div class="mt-4">
+        <a href="{{ url_for('extremes.extremes') }}" class="btn btn-secondary">{{ t.ext_back }}</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.app_title }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.app_title }}: {{ t.app_all if is_aivan else t.app_my }}</h1>
+    <p class="text-center mb-4">
+        <a href="{{ url_for('applications.new_application') }}" class="btn btn-primary">{{ t.app_new }}</a>
+        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-secondary ms-2">{{ t.nav_change_password }}</a>
+    </p>
+
+    {% if applications %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{{ t.app_created }}</th>
+                    {% if is_aivan %}<th>{{ t.app_applicant }}</th>{% endif %}
+                    <th>{{ t.app_level }}</th>
+                    <th>{{ t.levels_status }}</th>
+                    {% if is_aivan %}<th>{{ t.app_notes }}</th><th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td>{{ app.id }}</td>
+                    <td>{{ app.created_at.strftime('%Y-%m-%d %H:%M') if app.created_at else '—' }}</td>
+                    {% if is_aivan %}
+                    <td>{{ players.get(app.player_id).nickname if app.player_id in players else app.player_id }}</td>
+                    {% endif %}
+                    <td>
+                        {% if app.type == 1 and app.level_id and app.level_id in levels %}
+                        <a href="{{ url_for('levels.level_detail', level_id=app.level_id) }}">{{ levels[app.level_id].level_name }}</a>
+                        {% if app.completion_date %}<br><small class="text-muted">{{ t.ext_passed_on }}: {{ app.completion_date }}</small>{% endif %}
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.status == 1 %}{{ t.app_status_1 }}{% endif %}
+                        {% if app.status == 2 %}{{ t.app_status_2 }}{% endif %}
+                        {% if app.status == 3 %}{{ t.app_status_3 }}{% endif %}
+                        {% if app.status == 4 %}{{ t.app_status_4 }}{% endif %}
+                    </td>
+                    {% if is_aivan %}
+                    <td>
+                        <form method="post" action="{{ url_for('applications.set_status', app_id=app.id) }}" class="d-inline">
+                            <input type="text" name="notes" class="form-control form-control-sm mb-1" placeholder="{{ t.app_notes }}" value="{{ app.notes or '' }}">
+                            <div class="btn-group btn-group-sm">
+                                <button type="submit" name="status" value="1" class="btn btn-outline-secondary">{{ t.app_status_1 }}</button>
+                                <button type="submit" name="status" value="4" class="btn btn-outline-warning">{{ t.app_status_4 }}</button>
+                                <button type="submit" name="status" value="3" class="btn btn-outline-danger">{{ t.app_status_3 }}</button>
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        {% if app.status == 1 and app.type == 1 and app.level_id %}
+                        <form method="post" action="{{ url_for('applications.execute_application', app_id=app.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm">{{ t.app_execute }}</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center text-muted">{{ t.player_no_achievements }}</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('other.index') }}" class="btn btn-secondary">{{ t.ext_back }}</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,29 +1,45 @@
 {% extends 'mainh.html' %}
 
 {% block title %}
-aivancrate       
+AivanCrate - {{ t.pass_title }}
 {% endblock %}
 
 {% block body %}
-<figure class="wp-block-image size-large is-resized" style="padding: 0px; margin: 0px; text-align: center;"><img loading="lazy" src="static/images/sus.gif" alt="info navigation logo" class="wp-image-42553" width="350" height="175"></figure>
-<h2 id="405-not-allowed" class="has-anchor-hash" style="padding: 0px; margin: 0px; font-size: 45px; text-align: center;">Введи пароль<a class="anchor-hash" href="#405-not-allowed" aria-hidden="true"></a></h2>
-<script type="text/javascript">
-    var textt = ""
-    if ({notpass}){
-        textt = "Неверный пароль"
-        document.getElementById("textt").innerHTML = textt;
-    }
-</script>
-<p class="has-anchor-hash" style="padding: 0px; margin: 0px; font-size: 45px; text-align: center;"><div id="textt"></div></p>
 <div class="container mt-5">
-    <form method="post">
-        <input type="text" name="passwo" id="passwo" class="form-control"><br>
-        <input type="submit" class="btn btn-success" value="Отправить">
-    </form>
+    <div class="card text-center">
+        <img src="/static/images/sus.gif" class="card-img-top mx-auto" alt="Suspicious GIF" style="max-width: 350px; height: auto;">
+        <div class="card-body">
+            <h2 class="card-title">{{ t.pass_enter }}</h2>
+            <div id="textt" class="text-danger mb-3"></div>
+            <form method="post" action="{{ url_for('other.passw') }}" id="passForm">
+                <div class="d-flex justify-content-center">
+                    <input type="password" name="passwo" id="passwo" class="form-control w-50" placeholder="{{ t.pass_enter }}">
+                    <button type="submit" class="btn btn-primary ms-2">{{ t.pass_submit }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-
+<script>
+document.getElementById('passForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch('{{ url_for("other.passw") }}', {
+        method: 'POST',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        body: new URLSearchParams(formData)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) window.location.href = data.redirect || '/ax';
+        else document.getElementById('textt').textContent = '{{ t.pass_wrong }}';
+    });
+});
+{% if notpas %}
+document.getElementById('textt').textContent = '{{ t.pass_wrong }}';
+{% endif %}
+</script>
 {% endblock %}
 
 {% block center %}
-
 {% endblock %}

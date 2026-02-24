@@ -1,34 +1,65 @@
 {% extends 'mainh.html' %}
 
 {% block title %}
-aivancrate       
+AivanCrate - {{ t.create_title }}
 {% endblock %}
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Добавить экстрим Айвана</h1>
-    <form method="post">
-        <p>level-name</p>
-        <input type="text" name="level_name" id="level_name" class="form-control"><br>
-        <p>creator-name</p>
-        <textarea type="text" name="creator_name" id="creator_name" class="form-control"></textarea><br>
-        <p>img-link</p>
-        <textarea type="text" name="img" id="img" class="form-control"></textarea><br>
-        <p>attempts</p>
-        <textarea type="text" name="attempts" id="attempts" class="form-control"></textarea><br>  
-        <p>device</p>
-        <textarea type="text" name="device" id="device" class="form-control"></textarea><br> 
-        <p>fps</p> 
-        <textarea type="text" name="fps" id="fps" class="form-control"></textarea><br> 
-        <p>opinion</p> 
-        <textarea type="text" name="opinion" id="opinion" class="form-control"></textarea><br>
-        <p>difficulty</p> 
-        <textarea type="text" name="difficulty" id="difficulty" class="form-control"></textarea><br>
-        <input type="submit" class="btn btn-success" value="Отправить">
-    </form>
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-center">{{ t.create_form_title }}</h1>
+            <form method="post" action="{{ url_for('other.create_ax') }}">
+                <div class="row">
+                    <div class="col-md-6 mx-auto">
+                        <div class="mb-3">
+                            <label for="level_name" class="form-label">{{ t.create_level_name }}</label>
+                            <input type="text" name="level_name" id="level_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="creator_name" class="form-label">{{ t.create_creator }}</label>
+                            <input type="text" name="creator_name" id="creator_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="img" class="form-label">{{ t.create_img }}</label>
+                            <input type="text" name="img" id="img" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="attempts" class="form-label">{{ t.create_attempts }}</label>
+                            <input type="text" name="attempts" id="attempts" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="device" class="form-label">{{ t.create_device }}</label>
+                            <input type="text" name="device" id="device" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fps" class="form-label">{{ t.create_fps }}</label>
+                            <input type="text" name="fps" id="fps" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="opinion" class="form-label">{{ t.create_opinion }}</label>
+                            <textarea name="opinion" id="opinion" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="completion" class="form-label">{{ t.create_completion }}</label>
+                            <input type="url" name="completion" id="completion" class="form-control" placeholder="https://youtube.com/...">
+                        </div>
+                        <div class="mb-3">
+                            <label for="enjoyment" class="form-label">{{ t.create_enjoyment }}</label>
+                            <input type="number" name="enjoyment" id="enjoyment" class="form-control" min="0" max="10" step="0.01" placeholder="0–10">
+                        </div>
+                        <div class="mb-3">
+                            <label for="compl_date" class="form-label">{{ t.create_compl_date }}</label>
+                            <input type="date" name="compl_date" id="compl_date" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ t.create_submit }}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block center %}
-
 {% endblock %}

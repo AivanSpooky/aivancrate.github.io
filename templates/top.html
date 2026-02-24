@@ -1,45 +1,106 @@
 {% extends 'mainh.html' %}
 
 {% block title %}
-top-players      
+AivanCrate - Leaderboards
 {% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <h1>Топ крутых челиков!</h1>
-    <p>Внимание! Топ отсортирован по убыванию скилла, то есть на первом месте стоит самый скилловый игрок, а ниже расположены менее скилловые (бля не принимайте эту фразу за ЧСВ, я вставлял все в шаблон хахаха).</p>
-</div>
-    {% for el in articles %}
-    <div class="container mt-1">
-        <figure class="wp-block-image size-small is-resized" style="padding: 70px; margin: 0px"><img loading="lazy" src="static/images/player_icons/{{el.icon}}" alt="info navigation logo" class="wp-image-42553" width="50" height="50" align="left"; vspace="5"; hspace="5">
-            <div style="padding-left: 15px"><h2 style="text-align: left; margin-bottom: 10px">#{{el.id}} – {{el.nickname}}</h2>
-                <p>·Играет с версии: {{el.version}}</p>
-                <p>·Топ-5 достижений:</p>
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.top_title }}</h1>
+    <p class="text-center text-muted mb-4">
+        {{ t.top_desc }}
+    </p>
 
-                    <figure class="wp-block-image size-small is-resized" style="padding: 0px; margin: 0px"><img loading="lazy" src="static/images/{{el.top1_diff}}.png" alt="info navigation logo" class="wp-image-42553" width="25" height="25" align="left"; vspace="5"; hspace="5">
-                        <div style="padding-left: 15px"><p style="text-align: left; margin-bottom: 10px; font-size: small;">#1 – {{el.top1_text}}</p></div>
-                    </figure>  
-                    <figure class="wp-block-image size-small is-resized" style="padding: 0px; margin: 0px"><img loading="lazy" src="static/images/{{el.top2_diff}}.png" alt="info navigation logo" class="wp-image-42553" width="25" height="25" align="left"; vspace="5"; hspace="5">
-                        <div style="padding-left: 15px"><p style="text-align: left; margin-bottom: 10px; font-size: small;">#2 – {{el.top2_text}}</p></div>
-                    </figure>  
-                    <figure class="wp-block-image size-small is-resized" style="padding: 0px; margin: 0px"><img loading="lazy" src="static/images/{{el.top3_diff}}.png" alt="info navigation logo" class="wp-image-42553" width="25" height="25" align="left"; vspace="5"; hspace="5">
-                        <div style="padding-left: 15px"><p style="text-align: left; margin-bottom: 10px; font-size: small;">#3 – {{el.top3_text}}</p></div>
-                    </figure>  
-                    <figure class="wp-block-image size-small is-resized" style="padding: 0px; margin: 0px"><img loading="lazy" src="static/images/{{el.top4_diff}}.png" alt="info navigation logo" class="wp-image-42553" width="25" height="25" align="left"; vspace="5"; hspace="5">
-                        <div style="padding-left: 15px"><p style="text-align: left; margin-bottom: 10px; font-size: small;">#4 – {{el.top4_text}}</p></div>
-                    </figure>  
-                    <figure class="wp-block-image size-small is-resized" style="padding: 0px; margin: 0px"><img loading="lazy" src="static/images/{{el.top5_diff}}.png" alt="info navigation logo" class="wp-image-42553" width="25" height="25" align="left"; vspace="5"; hspace="5">
-                        <div style="padding-left: 15px"><p style="text-align: left; margin-bottom: 10px; font-size: small;">#5 – {{el.top5_text}}</p></div>
-                    </figure>  
+    <form method="get" class="mb-4 p-3 rounded d-flex flex-wrap align-items-end gap-3" style="background: #f8fafc;">
+        <input type="hidden" name="page" value="1">
+        <div>
+            <label for="difficulty" class="form-label mb-0">{{ t.top_filter_difficulty }}</label>
+            <select name="difficulty" id="difficulty" class="form-select" style="width: auto;" onchange="this.form.submit()">
+                {% for val, label in difficulty_options %}
+                <option value="{{ val }}" {% if (not current_difficulty and val == '') or (current_difficulty and current_difficulty == val|string) %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
 
+    <div class="fade-in-list">
+        {% for item in data %}
+        <div class="card mb-4 card-interactive list-item">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <img src="/static/images/player_icons/{{ item.player.icon }}" alt="{{ item.player.nickname }}" class="me-3 rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                        <div>
+                            <h5 class="mb-0">#{{ item.rank }} – {{ item.player.nickname }} ({{ item.total_points }})</h5>
+                            <p class="text-muted mb-0 small">· {{ t.top_total_points }}: {{ item.total_points }} · {{ t.top_version }}: {{ item.player.version }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('top.player_profile', player_id=item.player.id) }}{% if current_difficulty %}?difficulty={{ current_difficulty }}{% endif %}" class="btn btn-primary">{{ t.top_details }}</a>
+                </div>
+                {% if item.rank_peers|length > 1 %}
+                <div class="rank-peers-box mb-3 p-2 rounded">
+                    <div class="small text-muted mb-1">{{ t.top_share_rank }}:</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for peer in item.rank_peers %}
+                        <a href="{{ url_for('top.player_profile', player_id=peer.id) }}{% if current_difficulty %}?difficulty={{ current_difficulty }}{% endif %}" class="rank-peer-link btn btn-sm btn-outline-secondary">{{ peer.nickname }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <p class="mb-2">· {{ t.top_first_n }}:</p>
+                <div class="ms-4">
+                    {% for comp in item.all_completions[:top_completions_show] %}
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/static/images/{{ comp.diff }}.png" alt="Difficulty" class="me-2" style="width: 25px; height: auto;">
+                        <p class="mb-0">#{{ loop.index }} – {{ comp.text }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-        </figure>  
+        </div>
+        {% endfor %}
     </div>
-    
-    {% endfor %}
 
-{% endblock %}
+    {% if pagination and (pagination.pages > 1 or per_page_options) %}
+    <div class="pagination-wrapper">
+        <span class="pagination-info">
+            {{ t.pag_shown }} {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total]|min }} {{ t.pag_of }} {{ pagination.total }}
+        </span>
+        <div class="d-flex align-items-center gap-2">
+            <label for="per_page" class="mb-0">{{ t.pag_per_page }}:</label>
+            <select id="per_page" class="form-select per-page-select" style="width: auto;" onchange="applyPerPage(this.value)">
+                {% for pp in per_page_options %}
+                <option value="{{ pp }}" {% if pp == current_per_page %}selected{% endif %}>
+                    {{ t.pag_all if pp == 0 else pp }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{% if pagination.page > 1 %}{{ url_for('top.top', page=pagination.page - 1, per_page=current_per_page, difficulty=current_difficulty) }}{% else %}#{% endif %}">«</a>
+                </li>
+                {% for p in range(1, pagination.pages + 1) %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('top.top', page=p, per_page=current_per_page, difficulty=current_difficulty) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                    <a class="page-link" href="{% if pagination.page < pagination.pages %}{{ url_for('top.top', page=pagination.page + 1, per_page=current_per_page, difficulty=current_difficulty) }}{% else %}#{% endif %}">»</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
 
-{% block center %}
-
+<script>
+function applyPerPage(val) {
+    const u = new URL(window.location.href);
+    u.searchParams.set('per_page', val);
+    u.searchParams.set('page', '1');
+    window.location = u.toString();
+}
+</script>
 {% endblock %}

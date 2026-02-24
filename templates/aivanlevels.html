@@ -1,30 +1,148 @@
 {% extends 'mainh.html' %}
 
+{% macro build_page_url(page_num) %}
+{{ url_for('levels.levels', page=page_num, name=current_filters.name, victor=current_filters.victor, difficulty=current_filters.difficulty, sort=current_filters.sort, per_page=current_filters.per_page, genre=current_filters.genre) }}
+{% endmacro %}
+
 {% block title %}
-aivan-levels       
+AivanCrate - Уровни Айвана
 {% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <h1>Топ уровней Айвана</h1>
-    <p>Внимание! Топ отсортирован по убыванию крутости уровней, то есть на первом месте стоит самый крутой уровень Айвана, а ниже расположены менее крутые.</p>
-</div>
-    {% for el in articles %}
-    <div class="container mt-5">
-        <figure class="wp-block-image size-small is-resized" style="padding: 70px; margin: 0px"><img loading="lazy" src="static/images/aivanl/{{el.img}}" alt="info navigation logo" class="wp-image-42553" width="350" height="150" align="left"; vspace="5"; hspace="5">
-            <div style="padding-left: 15px"><figure class="wp-block-image size-small is-resized" style="padding: 0px; margin: 0px"><img loading="lazy" src="static/images/{{el.difficulty}}.png" alt="info navigation logo" class="wp-image-42553" width="75" height="75" align="left"; vspace="5"; hspace="5">
-                <div style="padding-left: 15px"><h2 style="text-align: left; margin-bottom: 10px">#{{el.id}} – {{el.level_name}}</h2>
-                    <h3 style="text-align: left"><i>Created by: {{el.creator_name}}</i></h3>
-                    <h3 style="text-align: left"><i>State: {{el.state}}</i></h3>
+<div class="container mt-5 content-enter">
+    <h1 class="text-center mb-4">{{ t.levels_title }}</h1>
+    <p class="text-center text-muted mb-4">
+        {{ t.levels_desc }}
+    </p>
+    <div class="text-center mb-3">
+        <a href="{{ url_for('levels.levels_yearly_index') }}" class="btn btn-outline-primary">{{ t.levels_yearly_stats }}</a>
+    </div>
+
+    <form method="get" class="mb-4 p-4 rounded" style="background: #f8fafc;">
+        <input type="hidden" name="page" value="1">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="name" class="form-label">{{ t.levels_name }}</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ current_filters.name }}" placeholder="{{ t.levels_name }}">
+            </div>
+            <div class="col-md-3">
+                <label for="victor" class="form-label">{{ t.levels_victor }}</label>
+                <input type="text" id="victor" name="victor" class="form-control" value="{{ current_filters.victor }}" placeholder="{{ t.levels_victor }}">
+            </div>
+            <div class="col-md-3">
+                <label for="difficulty" class="form-label">{{ t.levels_difficulty }}</label>
+                <select id="difficulty" name="difficulty" class="form-select">
+                    <option value="">Все</option>
+                    <option value="1" {% if current_filters.difficulty == '1' %}selected{% endif %}>Extreme Demon</option>
+                    <option value="2" {% if current_filters.difficulty == '2' %}selected{% endif %}>Insane Demon</option>
+                    <option value="3" {% if current_filters.difficulty == '3' %}selected{% endif %}>Hard Demon</option>
+                    <option value="4" {% if current_filters.difficulty == '4' %}selected{% endif %}>Medium Demon</option>
+                    <option value="5" {% if current_filters.difficulty == '5' %}selected{% endif %}>Easy Demon</option>
+                    <option value="6" {% if current_filters.difficulty == '6' %}selected{% endif %}>Insane</option>
+                    <option value="7" {% if current_filters.difficulty == '7' %}selected{% endif %}>Harder</option>
+                    <option value="8" {% if current_filters.difficulty == '8' %}selected{% endif %}>Hard</option>
+                    <option value="9" {% if current_filters.difficulty == '9' %}selected{% endif %}>Normal</option>
+                    <option value="10" {% if current_filters.difficulty == '10' %}selected{% endif %}>Easy</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="sort" class="form-label">{{ t.levels_sort }}</label>
+                <select id="sort" name="sort" class="form-select">
+                    <option value="top" {% if current_filters.sort == 'top' %}selected{% endif %}>{{ t.levels_sort_coolness }} (top)</option>
+                    <option value="top_diff" {% if current_filters.sort == 'top_diff' %}selected{% endif %}>{{ t.levels_sort_difficulty }} (top_diff)</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label">{{ t.levels_genres }}</label>
+                <div class="genre-tags d-flex flex-wrap gap-2">
+                    {% for g in all_genres %}
+                    <label class="genre-tag {% if g.id|string in current_filters.genre %}selected{% endif %}" style="cursor: pointer;">
+                        <input type="checkbox" name="genre" value="{{ g.id }}" class="d-none"
+                            {% if g.id|string in current_filters.genre %}checked{% endif %}
+                            onchange="this.parentElement.classList.toggle('selected', this.checked)">
+                        {{ g.name }}
+                    </label>
+                    {% endfor %}
                 </div>
             </div>
-        </figure>  
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">{{ t.levels_apply }}</button>
+                <a href="{{ url_for('levels.levels') }}" class="btn btn-secondary ms-2">{{ t.levels_reset }}</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="fade-in-list">
+        {% for art in articles %}
+        {% set el = art.level %}
+        <div class="card mb-4 card-interactive list-item">
+            <div class="card-body d-flex align-items-center">
+                <a href="{{ url_for('levels.level_detail', level_id=el.id) }}" class="text-decoration-none">
+                    <img src="/static/images/aivanl/{{ el.img }}" alt="Level Image" class="me-3 rounded" style="width: 150px; height: auto;">
+                </a>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
+                        <img src="/static/images/{{ el.difficulty }}.png" alt="Difficulty" class="rounded" style="width: 50px; height: auto;">
+                        {% for genre in art.genres %}
+                        <img src="/static/images/genres/{{ genre.img_url or 'default.png' }}" alt="{{ genre.name }}" title="{{ genre.name }}" class="rounded" style="width: 50px; height: auto;">
+                        {% endfor %}
+                    </div>
+                    <h5 class="mb-2">
+                        #{{ el.top if current_filters.sort == 'top' else el.top_diff }} – {{ el.level_name }}
+                    </h5>
+                    <p class="text-muted mb-1"><i>{{ t.levels_author }}: {{ el.creator_name }}</i></p>
+                    <p class="text-muted mb-1"><i>{{ t.levels_status }}: {{ el.state }}</i></p>
+                    {% if el.level_id %}
+                    <p class="text-muted mb-1"><i>ID: {{ el.level_id }}</i></p>
+                    {% endif %}
+                    <p class="text-muted mb-2"><i>{{ t.levels_points }}: {{ el.points or 'N/A' }}</i></p>
+                    <a href="{{ url_for('levels.level_detail', level_id=el.id) }}" class="btn btn-primary">{{ t.levels_details }}</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    
-    {% endfor %}
 
-{% endblock %}
+    {% if pagination.pages > 1 or per_page_options %}
+    <div class="pagination-wrapper">
+        <span class="pagination-info">
+            {{ t.pag_shown }} {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total]|min }} {{ t.pag_of }} {{ pagination.total }}
+        </span>
+        <div class="d-flex align-items-center gap-2">
+            <label for="per_page" class="mb-0">{{ t.pag_per_page }}:</label>
+            <select id="per_page" name="per_page" class="form-select per-page-select" style="width: auto;" onchange="applyPerPage(this.value)">
+                {% for pp in per_page_options %}
+                <option value="{{ pp }}" {% if pp == current_filters.per_page %}selected{% endif %}>
+                    {{ t.pag_all if pp == 0 else pp }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{% if pagination.page > 1 %}{{ build_page_url(pagination.page - 1) }}{% else %}#{% endif %}">«</a>
+                </li>
+                {% for p in range(1, pagination.pages + 1) %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ build_page_url(p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                    <a class="page-link" href="{% if pagination.page < pagination.pages %}{{ build_page_url(pagination.page + 1) }}{% else %}#{% endif %}">»</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
 
-{% block center %}
-
+<script>
+function applyPerPage(val) {
+    const u = new URL(window.location.href);
+    u.searchParams.set('per_page', val);
+    u.searchParams.set('page', '1');
+    window.location = u.toString();
+}
+</script>
 {% endblock %}

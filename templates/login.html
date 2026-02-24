@@ -1,0 +1,35 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ t.auth_login_title }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <h1 class="text-center mb-4">{{ t.auth_login_title }}</h1>
+            <form method="post" class="p-4 rounded" style="background: var(--panel-bg, #f8fafc);">
+                <input type="hidden" name="csrf_token" value="">
+                {% if error %}
+                <div class="alert alert-danger">
+                    {{ t[error] if t[error] is defined else error }}
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <label for="nickname" class="form-label">{{ t.auth_nickname }}</label>
+                    <input type="text" id="nickname" name="nickname" class="form-control" required autofocus value="{{ request.form.nickname or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">{{ t.auth_password }}</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">{{ t.auth_submit }}</button>
+            </form>
+            <p class="text-center mt-3">
+                <a href="{{ next or url_for('other.index') }}" class="text-muted">{{ t.ext_back }}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

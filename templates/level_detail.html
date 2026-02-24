@@ -1,0 +1,197 @@
+{% extends 'mainh.html' %}
+
+{% block title %}
+AivanCrate – {{ article.level.level_name }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 content-enter">
+    <div class="level-detail-layout">
+        <!-- Левая панель: картинка, название, автор, инфо -->
+        <div class="level-info-panel">
+            <img src="/static/images/aivanl/{{ article.level.img }}" alt="{{ article.level.level_name }}" class="img-fluid w-100" style="max-height: 400px; object-fit: cover;">
+            <div class="p-4">
+                <h1 class="h3 mb-3">{{ article.level.level_name }}</h1>
+                <p class="text-muted mb-2"><strong>{{ t.levels_author }}:</strong> {{ article.level.creator_name }}</p>
+                {% if article.level.top is not none %}
+                <p class="text-muted mb-2"><strong>{{ t.levels_rank_coolness }}:</strong> #{{ article.level.top }}</p>
+                {% endif %}
+                {% if article.level.top_diff is not none %}
+                <p class="text-muted mb-2"><strong>{{ t.levels_rank_difficulty }}:</strong> #{{ article.level.top_diff }}</p>
+                {% endif %}
+                <p class="text-muted mb-2"><strong>{{ t.levels_status }}:</strong> {{ article.level.state }}</p>
+                {% if article.level.level_id %}
+                <p class="text-muted mb-2"><strong>ID:</strong> {{ article.level.level_id }}</p>
+                {% endif %}
+                <p class="text-muted mb-2"><strong>{{ t.levels_points }}:</strong> {{ article.level.points or 'N/A' }}</p>
+                <p class="text-muted mb-2">
+                    <strong>{{ t.levels_sort_difficulty }}:</strong>
+                    <img src="/static/images/{{ article.level.difficulty }}.png" alt="" class="align-middle ms-1" style="width: 32px; height: auto;">
+                </p>
+                {% if article.genres %}
+                <p class="text-muted mb-0">
+                    <strong>Жанры:</strong>
+                    {% for genre in article.genres %}
+                    <img src="/static/images/genres/{{ genre.img_url or 'default.png' }}" alt="{{ genre.name }}" title="{{ genre.name }}" class="ms-1" style="width: 32px; height: auto;">
+                    {% endfor %}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Правая панель: табы (Victors, Replacement Song и т.д.) -->
+        <div class="level-tabs-panel">
+            <div class="tab-nav">
+                <button type="button" class="tab-btn active" data-tab="victors">{{ t.levels_victors }}</button>
+                {% if show_verification_tab %}
+                <button type="button" class="tab-btn" data-tab="verification">{{ t.levels_verification }}</button>
+                {% endif %}
+                {% if creators_pagination.total > 0 %}
+                <button type="button" class="tab-btn" data-tab="creators">{{ t.levels_creators }}</button>
+                {% endif %}
+                {% if article.replacement_songs %}
+                <button type="button" class="tab-btn" data-tab="song">Replacement Song</button>
+                {% endif %}
+            </div>
+            <div class="tab-content">
+                <div id="tab-victors" class="tab-pane-content">
+                    <h4 class="h5 mb-3">{{ t.levels_victors }}</h4>
+                    {% if victors_pagination.total > 0 %}
+                    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                        <label for="victors_per_page" class="mb-0 small">{{ t.pag_per_page }}:</label>
+                        <select id="victors_per_page" class="form-select form-select-sm" style="width: auto;" onchange="applyVictorsPerPage(this.value)">
+                            {% for pp in victors_per_page_options %}
+                            <option value="{{ pp }}" {% if pp == current_victors_per_page %}selected{% endif %}>{{ t.pag_all if pp == 0 else pp }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    {% for v in victors %}
+                    <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: #f8fafc;">
+                        <img src="/static/images/player_icons/{{ v.icon }}" alt="{{ v.nickname }}" class="me-3 rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                        <div>
+                            <a href="{{ url_for('top.player_profile', player_id=v.player_id) }}" class="fw-semibold text-decoration-none">{{ v.nickname }}</a>
+                            {% if v.is_verification %}
+                            <span class="badge bg-secondary ms-1">Verification</span>
+                            {% endif %}
+                            {% if v.is_first_victor %}
+                            <span class="badge bg-success ms-1">First Victor</span>
+                            {% endif %}
+                            <div class="text-muted small">{{ v.date or t.levels_no_date }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not victors %}
+                    <p class="text-muted">{{ t.levels_no_victors }}</p>
+                    {% endif %}
+                    {% if victors_pagination.pages > 1 or victors_per_page_options %}
+                    <nav class="mt-3 d-flex flex-wrap align-items-center gap-2">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item {% if victors_pagination.page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="?victors_page={{ victors_pagination.page - 1 }}&creators_page={{ creators_pagination.page }}&victors_per_page={{ current_victors_per_page }}">«</a>
+                            </li>
+                            {% for p in range(1, victors_pagination.pages + 1) %}
+                            <li class="page-item {% if p == victors_pagination.page %}active{% endif %}">
+                                <a class="page-link" href="?victors_page={{ p }}&creators_page={{ creators_pagination.page }}&victors_per_page={{ current_victors_per_page }}">{{ p }}</a>
+                            </li>
+                            {% endfor %}
+                            <li class="page-item {% if victors_pagination.page >= victors_pagination.pages %}disabled{% endif %}">
+                                <a class="page-link" href="?victors_page={{ victors_pagination.page + 1 }}&creators_page={{ creators_pagination.page }}&victors_per_page={{ current_victors_per_page }}">»</a>
+                            </li>
+                        </ul>
+                        <span class="small text-muted">{{ t.pag_shown }} {{ (victors_pagination.page - 1) * victors_pagination.per_page + 1 }}-{{ [victors_pagination.page * victors_pagination.per_page, victors_pagination.total]|min }} {{ t.pag_of }} {{ victors_pagination.total }}</span>
+                    </nav>
+                    {% endif %}
+                </div>
+                {% if show_verification_tab and verifier %}
+                <div id="tab-verification" class="tab-pane-content" style="display: none;">
+                    <h4 class="h5 mb-3">{{ t.levels_verification }}</h4>
+                    <div class="d-flex align-items-center mb-3 p-3 rounded" style="background: #f8fafc;">
+                        <img src="/static/images/player_icons/{{ verifier.icon }}" alt="{{ verifier.nickname }}" class="me-3 rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+                        <div>
+                            <span class="fw-semibold">{{ t.levels_verified_by }}: <a href="{{ url_for('top.player_profile', player_id=verifier.player_id) }}" class="text-decoration-none">{{ verifier.nickname }}</a></span>
+                            <div class="text-muted small">{{ verifier.date or t.levels_no_date }}</div>
+                            {% if verification_extreme %}
+                            <a href="{{ url_for('extremes.extreme_detail', extreme_id=verification_extreme.id) }}" class="btn btn-primary btn-sm mt-2">{{ t.levels_watch_completion }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if creators_pagination.total > 0 %}
+                <div id="tab-creators" class="tab-pane-content" style="display: none;">
+                    <h4 class="h5 mb-3">{{ t.levels_creators }}</h4>
+                    {% for c in creators %}
+                    {% if c.in_top %}
+                    <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: #f8fafc;">
+                        <img src="/static/images/player_icons/{{ c.icon }}" alt="{{ c.nickname }}" class="me-3 rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                        <div>
+                            <a href="{{ url_for('top.player_profile', player_id=c.player_id) }}" class="fw-semibold text-decoration-none">{{ c.nickname }}</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-flex align-items-center mb-2 ps-2">
+                        <span class="text-muted">{{ c.nickname }}</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% if creators_pagination.pages > 1 %}
+                    <nav class="mt-3">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item {% if creators_pagination.page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="?victors_page={{ victors_pagination.page }}&creators_page={{ creators_pagination.page - 1 }}&victors_per_page={{ current_victors_per_page }}">«</a>
+                            </li>
+                            {% for p in range(1, creators_pagination.pages + 1) %}
+                            <li class="page-item {% if p == creators_pagination.page %}active{% endif %}">
+                                <a class="page-link" href="?victors_page={{ victors_pagination.page }}&creators_page={{ p }}&victors_per_page={{ current_victors_per_page }}">{{ p }}</a>
+                            </li>
+                            {% endfor %}
+                            <li class="page-item {% if creators_pagination.page >= creators_pagination.pages %}disabled{% endif %}">
+                                <a class="page-link" href="?victors_page={{ victors_pagination.page }}&creators_page={{ creators_pagination.page + 1 }}&victors_per_page={{ current_victors_per_page }}">»</a>
+                            </li>
+                        </ul>
+                        <span class="small text-muted">{{ t.pag_shown }} {{ (creators_pagination.page - 1) * creators_per_page + 1 }}-{{ [creators_pagination.page * creators_per_page, creators_pagination.total]|min }} {{ t.pag_of }} {{ creators_pagination.total }}</span>
+                    </nav>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if article.replacement_songs %}
+                <div id="tab-song" class="tab-pane-content" style="display: none;">
+                    <h4 class="h5 mb-3">Replacement Song</h4>
+                    {% for song in article.replacement_songs %}
+                    <div class="mb-3 p-3 rounded" style="background: #f8fafc;">
+                        <a href="{{ song.link }}" target="_blank" rel="noopener" class="text-decoration-none fw-semibold">
+                            {{ song.song_name }} – {{ song.author_name }}
+                        </a>
+                        <span class="d-block text-muted small mt-1">{{ t.levels_track_link }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{{ url_for('levels.levels') }}" class="btn btn-secondary">{{ t.levels_back }}</a>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = 'tab-' + this.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane-content').forEach(p => p.style.display = 'none');
+        this.classList.add('active');
+        const pane = document.getElementById(tabId);
+        if (pane) pane.style.display = 'block';
+    });
+});
+function applyVictorsPerPage(val) {
+    const u = new URL(window.location.href);
+    u.searchParams.set('victors_per_page', val);
+    u.searchParams.set('victors_page', '1');
+    window.location = u.toString();
+}
+</script>
+{% endblock %}

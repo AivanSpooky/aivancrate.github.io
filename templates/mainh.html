@@ -1,225 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <title>{% block title %}{% endblock %}</title>
+    <script>
+        (function() {
+            var t = localStorage.getItem('aivancrate-theme');
+            if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+        })();
+    </script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- AivanCrate styles -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
 </head>
-<body class="post-template-default single single-post postid-42551 single-format-standard wp-embed-responsive logaster3 singular image-filters-enabled">
-    <header class="header" id="header">
-        <style>
-            .menu {
-             position: fixed; /* Фиксированное положение */
-             right: 10px; /* Расстояние от правого края окна браузера */
-             top: 20%; /* Расстояние сверху */
-             padding: 10px; /* Поля вокруг текста */ 
-             background: #ffe; /* Цвет фона */ 
-             border: 1px solid #333; /* Параметры рамки */ 
-            }
-            .text {
-             height: 1000px;
-            }
-        </style>
-        <nav class="navbar navbar-dark">
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">AivanCrate</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
-            <a class="logaster-logo mx-auto" href="/" data-track-c="Blog" data-track-a="Header_LogasterLogo_click" itemscope="" itemtype="http://schema.org/Organization">
-                    <img src="static/images/header.png" width="375" height="60" alt="Logaster logo">
-            </a>
-
-            <a href="/pass" class="btn red-btn btn-sm waves-effect waves-light btn" data-track-c="Blog" data-track-a="StaticHeader_btn">Добавить</a>
-
-            <a href="/rules" class="btn green-btn btn-sm waves-effect waves-light btn" data-track-c="Blog" data-track-a="StaticHeader_btn">Правила сайта</a>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav header-links">
-                    <li class="nav-item mr-3"><a class="nav-link" href="/aboutaivan"><i class="home-icon"></i><span>об Aivan</span></a></li><hr class="header-menu-divider"><li class="nav-item mr-3"><a class="nav-link" href="/aivanextremes">Все пройденные экстримы Айвана</a></li><li class="nav-item mr-3"><a class="nav-link" href="/aivanlevels">Все уровни Айвана</a></li>                <hr class="header-menu-divider">
-                    <li class="nav-item mr-3"><a class="nav-link" href="/top" data-track-c="Blog" data-track-a="Header_Guest_Post_click">Топ игроков</a></li><hr class="header-menu-divider">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="/aboutaivan">{{ t.nav_about }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/aivanextremes">{{ t.nav_extremes }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/aivanlevels">{{ t.nav_levels }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/top">{{ t.nav_leaderboards }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/rules">{{ t.nav_rules }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contacts">{{ t.nav_contacts }}</a></li>
+                    {% if current_player %}
+                    <li class="nav-item dropdown ms-2">
+                        <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ t.nav_account }}: {{ current_player.nickname }}</a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('applications.list_applications') }}">{{ t.nav_my_applications }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">{{ t.nav_change_password }}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">{{ t.nav_logout }}</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item ms-2">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">{{ t.nav_login }}</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item ms-2">
+                        <div class="btn-group btn-group-sm theme-toggle" role="group" aria-label="Theme">
+                            <button type="button" class="btn btn-outline-light theme-btn" data-theme="light" title="Светлая тема">☀</button>
+                            <button type="button" class="btn btn-outline-light theme-btn" data-theme="dark" title="Тёмная тема">🌙</button>
+                        </div>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="{{ lang_url('ru') }}" class="btn btn-outline-light {{ 'active' if lang == 'ru' else '' }}">RU</a>
+                            <a href="{{ lang_url('en') }}" class="btn btn-outline-light {{ 'active' if lang == 'en' else '' }}">EN</a>
+                        </div>
+                    </li>
+                </ul>
             </div>
-        </nav>
-    </header>
-    
-    <div class="scroll-to-top">
-        <div class="btn-floating btn-md rgba-stylish-strong mx-1"><i class="icon icon-arrow-up center-icon" data-track-c="Blog" data-track-a="GoUp_btn"></i></div>
-    </div>
+        </div>
+    </nav>
 
-    <div id="page" class="site">
-        
-        <div id="content" class="site-content">
-        <main id="main" class="site-main container mt-5">
-            <div class="row">
-                {% block center %}{% endblock %}
-            </div>
-        </main><!-- #main -->
+    <main class="py-5">
+        {% block center %}{% endblock %}
         {% block body %}{% endblock %}
-    
-    
-    </div><!-- #content -->
-    
-    </div><!-- #page -->
-    
-    <link rel="stylesheet" href="https://1757140519.rsc.cdn77.org/blog/wp-content/themes/logaster/style.css">
-    <div class="wppopups-whole" style="display: none"></div><link rel="stylesheet" href="https://1757140519.rsc.cdn77.org/blog/wp-content/themes/logaster/single_mdb_purged.css"><div id="su-footer-links" style="text-align: center;"></div><script type="text/javascript" src="https://1757140519.rsc.cdn77.org/blog/wp-content/themes/logaster/js/priority-menu.min.js?ver=1.1" id="twentynineteen-priority-menu-js"></script>
-        <script>
-            /(trident|msie)/i.test(navigator.userAgent)&&document.getElementById&&window.addEventListener&&window.addEventListener("hashchange",function(){var t,e=location.hash.substring(1);/^[A-z0-9_-]+$/.test(e)&&(t=document.getElementById(e))&&(/^(?:a|select|input|button|textarea)$/i.test(t.tagName)||(t.tabIndex=-1),t.focus())},!1);
-        </script>
-        
-    <script defer="" src="//1757140519.rsc.cdn77.org/static/v3/v3g/js/v3g-base.js" onload="jqueryReady($)"></script>
-    <script defer="" src="//1757140519.rsc.cdn77.org/static/v3/v3g/js/v3g-blog-mdb.js"></script>
-    <script defer="" src="https://1757140519.rsc.cdn77.org/blog/wp-content/plugins/wp-postratings/js/postratings-js.js?ver=1.85"></script>
-    <script>
-        var ratingsL10n = {"plugin_url":"https://www.logaster.ru/blog\/wp-content\/plugins\/wp-postratings","ajax_url":"https://www.logaster.ru/blog\/wp-admin\/admin-ajax.php","text_wait":"Please rate only 1 item at a time.","image":"stars","image_ext":"gif","max":"5","show_loading":"1","show_fading":"1","custom":"0"};
-        var ratings_mouseover_image=new Image();ratings_mouseover_image.src="https://1757140519.rsc.cdn77.org/blog/wp-content/plugins/wp-postratings/images/stars/rating_over.gif";
-    </script>
-    <script>
-        function jqueryReady($) {
-            var createLogoSteps = $(".site-content");
-            function scrollHandler()
-            {
-                var toggleHeader = ($(window).scrollTop() < createLogoSteps.offset().top);
-    
-                $(".fixed-header").toggleClass("d-none", toggleHeader);
-            }
-            scrollHandler();
-            $(window).on("scroll", scrollHandler);
-            
-    
-            $(function(){
-                let header = $('.header');
-                let hederHeight = header.height(); // вычисляем высоту шапки
+    </main>
 
-                $(window).scroll(function(){
-                    if($(this).scrollTop() > 1) {
-                    header.addClass('header_fixed');
-                    $('body').css({
-                    'paddingTop': hederHeight+'px' // делаем отступ у body, равный высоте шапки
-                    });
-                } else {
-                    header.removeClass('header_fixed');
-                    $('body').css({
-                    'paddingTop': 0 // удаляю отступ у body, равный высоте шапки
-                    })
-                }
+    <footer>
+        <p>&copy; 2022 AivanCrate. Copyright</p>
+    </footer>
 
-                    if($(document).scrollTop()>$(window).height()){
-                        $('.scroll-to-top').fadeIn(500);
-                    }else{
-                        $('.scroll-to-top').fadeOut(500);
-                    }
-                });
-                $('.scroll-to-top').click(function(){
-                    $('html,body').animate({scrollTop: 0}, 1000);
-                });
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.theme-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var theme = this.getAttribute('data-theme');
+                document.documentElement.dataset.theme = theme;
+                localStorage.setItem('aivancrate-theme', theme);
+                document.querySelectorAll('.theme-btn').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
             });
-        }
-    
+        });
         (function() {
-            // Optimization for Repeat Views
-            if( sessionStorage.criticalFoftFontsLoaded ) {
-                document.documentElement.className += " fonts-stage-1 fonts-stage-2";
-                return;
-            }
-            // FontFaceObserver https://github.com/bramstein/fontfaceobserver
-            (function(){function e(e,t){document.addEventListener?e.addEventListener("scroll",t,!1):e.attachEvent("scroll",t)}function t(e){document.body?e():document.addEventListener?document.addEventListener("DOMContentLoaded",function t(){document.removeEventListener("DOMContentLoaded",t),e()}):document.attachEvent("onreadystatechange",function n(){if("interactive"==document.readyState||"complete"==document.readyState)document.detachEvent("onreadystatechange",n),e()})}function n(e){this.a=document.createElement("div"),this.a.setAttribute("aria-hidden","true"),this.a.appendChild(document.createTextNode(e)),this.b=document.createElement("span"),this.c=document.createElement("span"),this.h=document.createElement("span"),this.f=document.createElement("span"),this.g=-1,this.b.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;",this.c.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;",this.f.style.cssText="max-width:none;display:inline-block;position:absolute;height:100%;width:100%;overflow:scroll;font-size:16px;",this.h.style.cssText="display:inline-block;width:200%;height:200%;font-size:16px;max-width:none;",this.b.appendChild(this.h),this.c.appendChild(this.f),this.a.appendChild(this.b),this.a.appendChild(this.c)}function r(e,t){e.a.style.cssText="max-width:none;min-width:20px;min-height:20px;display:inline-block;overflow:hidden;position:absolute;width:auto;margin:0;padding:0;top:-999px;left:-999px;white-space:nowrap;font:"+t+";"}function i(e){var t=e.a.offsetWidth,n=t+100;return e.f.style.width=n+"px",e.c.scrollLeft=n,e.b.scrollLeft=e.b.scrollWidth+100,e.g!==t?(e.g=t,!0):!1}function s(t,n){function r(){var e=s;i(e)&&null!==e.a.parentNode&&n(e.g)}var s=t;e(t.b,r),e(t.c,r),i(t)}function o(e,t){var n=t||{};this.family=e,this.style=n.style||"normal",this.weight=n.weight||"normal",this.stretch=n.stretch||"normal"}function l(){if(null===a){var e=document.createElement("div");try{e.style.font="condensed 100px sans-serif"}catch(t){}a=""!==e.style.font}return a}function c(e,t){return[e.style,e.weight,l()?e.stretch:"","100px",t].join(" ")}var u=null,a=null,f=null;o.prototype.load=function(e,i){var o=this,a=e||"BESbswy",l=i||3e3,h=(new Date).getTime();return new Promise(function(e,i){null===f&&(f=!!window.FontFace);if(f){var p=new Promise(function(e,t){function n(){(new Date).getTime()-h>=l?t():document.fonts.load(c(o,o.family),a).then(function(t){1<=t.length?e():setTimeout(n,25)},function(){t()})}n()}),d=new Promise(function(e,t){setTimeout(t,l)});Promise.race([d,p]).then(function(){e(o)},function(){i(o)})}else t(function(){function t(){var t;if(t=-1!=m&&-1!=g||-1!=m&&-1!=S||-1!=g&&-1!=S)(t=m!=g&&m!=S&&g!=S)||(null===u&&(t=/AppleWebKit\/([0-9]+)(?:\.([0-9]+))/.exec(window.navigator.userAgent),u=!!t&&(536>parseInt(t[1],10)||536===parseInt(t[1],10)&&11>=parseInt(t[2],10))),t=u&&(m==x&&g==x&&S==x||m==T&&g==T&&S==T||m==N&&g==N&&S==N)),t=!t;t&&(null!==C.parentNode&&C.parentNode.removeChild(C),clearTimeout(L),e(o))}function f(){if((new Date).getTime()-h>=l)null!==C.parentNode&&C.parentNode.removeChild(C),i(o);else{var e=document.hidden;if(!0===e||void 0===e)m=p.a.offsetWidth,g=d.a.offsetWidth,S=v.a.offsetWidth,t();L=setTimeout(f,50)}}var p=new n(a),d=new n(a),v=new n(a),m=-1,g=-1,S=-1,x=-1,T=-1,N=-1,C=document.createElement("div"),L=0;C.dir="ltr",r(p,c(o,"sans-serif")),r(d,c(o,"serif")),r(v,c(o,"monospace")),C.appendChild(p.a),C.appendChild(d.a),C.appendChild(v.a),document.body.appendChild(C),x=p.a.offsetWidth,T=d.a.offsetWidth,N=v.a.offsetWidth,f(),s(p,function(e){m=e,t()}),r(p,c(o,'"'+o.family+'",sans-serif')),s(d,function(e){g=e,t()}),r(d,c(o,'"'+o.family+'",serif')),s(v,function(e){S=e,t()}),r(v,c(o,'"'+o.family+'",monospace'))})})},"undefined"!=typeof module?module.exports=o:(window.FontFaceObserver=o,window.FontFaceObserver.prototype.load=o.prototype.load)})();
-            var fontASubset = new FontFaceObserver('Lato-Regular-Subset');
-            Promise.all([fontASubset.load()]).then(function () {
-                document.documentElement.className += " fonts-stage-1";
-                var fontA = new FontFaceObserver('LatoWeb');
-                var fontB = new FontFaceObserver('LatoWebLight');
-                var fontC = new FontFaceObserver('LatoWebBold');
-                var fontD = new FontFaceObserver('fontello');
-                Promise.all([fontA.load(null, 10000), fontB.load(null, 10000), fontC.load(null, 10000), fontD.load(null, 10000)]).then(function () {
-                    document.documentElement.className += " fonts-stage-2";
-                    // Optimization for Repeat Views
-                    sessionStorage.criticalFoftFontsLoaded = true;
-                });
+            var theme = document.documentElement.dataset.theme || 'light';
+            document.querySelectorAll('.theme-btn').forEach(function(b) {
+                b.classList.toggle('active', b.getAttribute('data-theme') === theme);
             });
         })();
-        var searchFormInputs = document.querySelectorAll('.subheader-input');
-        var textForms = document.querySelectorAll(".validation-form");
-    
-        searchFormInputs.forEach(function(element){
-            element.addEventListener( 'click', function( event ) {
-                event.stopPropagation();
-                let classes = this.className.split(" ");
-                if (classes.indexOf("opened") == -1) {
-                    this.className += " " + "opened";
-                }
-    
-                document.addEventListener( 'click', listener = function() {
-                    let classes = element.className.split(" ");
-                    if (classes.includes("opened")) {
-                        element.className = element.className.replace(/\bopened\b/g, "");
-                        document.removeEventListener('click', listener, false);
-                    }
-                });
-            });
-    
-            element.addEventListener('input', function(event){
-                this.parentNode.querySelector(".searchform-button").disabled = (this.value.length < 1);
-            });
-        });
-    
-        textForms.forEach(function(element) {
-            var formInput = element.querySelector(".validation-input");
-            var formButton = element.querySelector(".btn");
-    
-            formButton.onclick = function(e)
-            {
-                var text = formInput.value.replace(/\s/g, "");
-                if (text.length >= 3)
-                {
-                    e.preventDefault();
-                    element.submit();
-                }
-            };
-    
-            element.onsubmit = function(e)
-            {
-                var text = formInput.value.replace(/\s/g, "");
-                if (text.length < 3)
-                {
-                    e.preventDefault();
-                    window.location.href = "/logo/";
-                }
-            };
-        });
-    
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register("//1757140519.rsc.cdn77.org/sw.js").then(function(registration) {
-                    // Registration was successful
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function(err) {
-                    // registration failed :(
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
-    
-                var socialButtons = document.querySelectorAll(".social-list");
-            socialButtons.forEach(function (element) {
-                var socialButtonLink = element.querySelectorAll("a");
-                
-                socialButtonLink.forEach(function (element) {
-                    element.onclick = function()
-                    {
-                        window.open(element.href, '', 'width=600,height=600'); return false;
-                    };
-                });
-            });
-        </script>
-    <script>
-        //https://deanhume.com/lazy-loading-images-using-intersection-observer/
-        var i,allMedia=document.querySelectorAll(".js-lazyload"),config={rootMargin:"100px 0px"},mediaCount=allMedia.length;if("IntersectionObserver"in window){var observer=new IntersectionObserver(onIntersection,config);for(i=0;i<mediaCount;i++){var media=allMedia[i];media.classList.contains("js-lazyload--handled")||observer.observe(media)}}else for(i=0;i<mediaCount;i++)loadMedia(allMedia[i]);function onIntersection(e){if(0===mediaCount&&observer)observer.disconnect();else for(var a=0;a<e.length;a++){var i=e[a];i.intersectionRatio>0&&(mediaCount--,observer.unobserve(i.target),loadMedia(i.target))}}function loadMedia(e){e.classList.add("js-lazyload--handled"),"source"==e.tagName.toLowerCase()?e.srcset=e.dataset.srcset:e.src=e.dataset.src}
     </script>
-    
-    <div class="hiddendiv common"></div>
 </body>
 </html>

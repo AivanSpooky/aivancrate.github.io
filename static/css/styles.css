@@ -1,0 +1,810 @@
+/* AivanCrate - Interactive styles and animations */
+
+/* === Тема: светлая по умолчанию === */
+:root, [data-theme="light"] {
+    --body-bg: #f9fafb;
+    --body-text: #1f2937;
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --heading-color: #1e3a8a;
+    --muted-color: #6b7280;
+    --panel-bg: #f8fafc;
+    --border-subtle: #e5e7eb;
+}
+[data-theme="dark"] {
+    --body-bg: #0f172a;
+    --body-text: #e2e8f0;
+    --card-bg: #1e293b;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --heading-color: #93c5fd;
+    --muted-color: #94a3b8;
+    --panel-bg: #334155;
+    --border-subtle: #475569;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--body-bg);
+    color: var(--body-text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.navbar {
+    background-color: #1e3a8a;
+}
+.navbar-brand, .nav-link {
+    color: #ffffff !important;
+    transition: color 0.3s ease;
+}
+.nav-link:hover {
+    color: #f97316 !important;
+}
+[data-theme="dark"] .navbar {
+    background-color: #0f172a;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease;
+    background-color: var(--card-bg);
+    color: var(--body-text);
+}
+[data-theme="dark"] .card {
+    border: 1px solid var(--border-subtle);
+}
+.container {
+    max-width: 1200px;
+}
+h1, h2, h3, h4 {
+    color: var(--heading-color);
+}
+.text-muted {
+    color: var(--muted-color) !important;
+}
+[data-theme="dark"] .text-muted {
+    color: #94a3b8 !important;
+}
+.anchor-hash {
+    text-decoration: none;
+    color: inherit;
+}
+footer {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    padding: 1rem 0;
+    text-align: center;
+    margin-top: 2rem;
+}
+[data-theme="dark"] footer {
+    background-color: #0f172a;
+    border-top: 1px solid var(--border-subtle);
+}
+/* Панели и блоки с фоном (в т.ч. инлайновые style="background: ...") */
+[data-theme="dark"] [style*="background"],
+[data-theme="dark"] .p-2.rounded[style*="background"],
+[data-theme="dark"] .p-3.rounded[style*="background"],
+[data-theme="dark"] .p-4.rounded[style*="background"],
+[data-theme="dark"] .p-5.rounded[style*="background"],
+[data-theme="dark"] form.rounded[style*="background"] {
+    background: var(--panel-bg) !important;
+    color: var(--body-text) !important;
+}
+[data-theme="dark"] [style*="background"] .text-muted {
+    color: var(--muted-color) !important;
+}
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #1e293b;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: #1e293b;
+    border-color: #93c5fd;
+    color: #e2e8f0;
+}
+[data-theme="dark"] .pagination .page-link {
+    background-color: #1e293b;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+[data-theme="dark"] .pagination .page-link:hover {
+    background-color: #334155;
+    color: #93c5fd;
+}
+[data-theme="dark"] .pagination .page-item.active .page-link {
+    background-color: #1e3a8a;
+    border-color: #1e3a8a;
+}
+[data-theme="dark"] .btn-outline-primary {
+    border-color: #64748b;
+    color: #93c5fd;
+}
+[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: #1e3a8a;
+    border-color: #1e3a8a;
+    color: #fff;
+}
+[data-theme="dark"] .btn-secondary {
+    background-color: #475569;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+[data-theme="dark"] .btn-secondary:hover {
+    background-color: #64748b;
+    border-color: #64748b;
+}
+[data-theme="dark"] .rank-peers-box,
+[data-theme="dark"] .player-achievements-panel {
+    background: var(--card-bg) !important;
+    border-color: var(--border-subtle);
+}
+[data-theme="dark"] .tab-nav {
+    background: var(--panel-bg) !important;
+    border-color: var(--border-subtle);
+}
+[data-theme="dark"] .player-cube-wrap {
+    background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+}
+[data-theme="dark"] .player-nickname {
+    color: #e2e8f0;
+}
+[data-theme="dark"] .lead {
+    color: var(--muted-color);
+}
+[data-theme="dark"] .card-body {
+    background-color: var(--card-bg);
+    color: var(--body-text);
+}
+[data-theme="dark"] a:not(.nav-link):not(.btn-primary) {
+    color: #93c5fd;
+}
+[data-theme="dark"] a:not(.nav-link):not(.btn-primary):hover {
+    color: #bfdbfe;
+}
+[data-theme="dark"] .player-achievement-item:hover {
+    background: var(--panel-bg) !important;
+}
+[data-theme="dark"] .pagination-info,
+[data-theme="dark"] .small.text-muted {
+    color: var(--muted-color) !important;
+}
+/* Левая/правая панели уровня, табы */
+[data-theme="dark"] .level-info-panel,
+[data-theme="dark"] .level-tabs-panel {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-subtle);
+}
+[data-theme="dark"] .tab-content {
+    background: var(--card-bg) !important;
+    color: var(--body-text);
+}
+[data-theme="dark"] .tab-btn {
+    color: var(--muted-color);
+}
+[data-theme="dark"] .tab-btn:hover {
+    background: var(--border-subtle) !important;
+    color: var(--body-text);
+}
+[data-theme="dark"] .tab-btn.active {
+    background: #1e3a8a !important;
+    color: #fff;
+}
+[data-theme="dark"] .per-page-select {
+    background: var(--card-bg) !important;
+    border-color: var(--border-subtle);
+    color: var(--body-text);
+}
+[data-theme="dark"] .genre-tag {
+    background: var(--panel-bg) !important;
+    color: var(--body-text);
+}
+[data-theme="dark"] .genre-tag:hover {
+    background: var(--border-subtle) !important;
+}
+[data-theme="dark"] .genre-tag.selected {
+    background: #1e3a8a !important;
+    color: #fff;
+}
+[data-theme="dark"] .player-achievement-item {
+    border-bottom-color: var(--border-subtle) !important;
+    color: var(--body-text);
+}
+[data-theme="dark"] .player-achievement-item:hover {
+    background: var(--panel-bg) !important;
+}
+[data-theme="dark"] .rank-peers-box {
+    background: var(--panel-bg) !important;
+    border-color: var(--border-subtle);
+}
+[data-theme="dark"] .player-rank-wrap.rank-other {
+    background: var(--panel-bg) !important;
+    color: var(--muted-color);
+}
+[data-theme="dark"] .player-rank-wrap.rank-2 {
+    background: linear-gradient(135deg, #475569 0%, #64748b 100%) !important;
+    color: #e2e8f0;
+}
+[data-theme="dark"] .player-rank-wrap.rank-3 {
+    background: linear-gradient(135deg, #9a3412 0%, #c2410c 100%) !important;
+    color: #fed7aa;
+}
+[data-theme="dark"] .pagination-wrapper {
+    color: var(--body-text);
+}
+[data-theme="dark"] .fw-semibold,
+[data-theme="dark"] .fw-medium {
+    color: var(--body-text);
+}
+[data-theme="dark"] .badge.bg-secondary {
+    background-color: #475569 !important;
+}
+[data-theme="dark"] .badge.bg-success {
+    background-color: #059669 !important;
+}
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-light {
+    background-color: var(--card-bg) !important;
+}
+[data-theme="dark"] .form-label,
+[data-theme="dark"] label {
+    color: var(--body-text) !important;
+}
+[data-theme="dark"] .list-item {
+    background-color: var(--card-bg);
+}
+[data-theme="dark"] .content-enter {
+    color: var(--body-text);
+}
+
+/* Button hover/active effects */
+.btn {
+    transition: all 0.25s ease;
+    transform: translateY(0);
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: #f97316;
+    border-color: #f97316;
+}
+.btn-primary:hover {
+    background-color: #ea580c;
+    border-color: #ea580c;
+}
+.btn-secondary:hover {
+    background-color: #64748b;
+    border-color: #64748b;
+}
+
+/* About Aivan - единый формат изображений */
+.about-aivan-img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+}
+
+/* Card hover effects */
+.card-interactive {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-interactive:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Fade-in animation for list items */
+.fade-in-list {
+    animation: fadeInUp 0.5s ease forwards;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation for list children */
+.fade-in-list .list-item {
+    opacity: 0;
+    animation: fadeInUp 0.4s ease forwards;
+}
+.fade-in-list .list-item:nth-child(1) { animation-delay: 0.05s; }
+.fade-in-list .list-item:nth-child(2) { animation-delay: 0.1s; }
+.fade-in-list .list-item:nth-child(3) { animation-delay: 0.15s; }
+.fade-in-list .list-item:nth-child(4) { animation-delay: 0.2s; }
+.fade-in-list .list-item:nth-child(5) { animation-delay: 0.25s; }
+.fade-in-list .list-item:nth-child(6) { animation-delay: 0.3s; }
+.fade-in-list .list-item:nth-child(7) { animation-delay: 0.35s; }
+.fade-in-list .list-item:nth-child(8) { animation-delay: 0.4s; }
+.fade-in-list .list-item:nth-child(9) { animation-delay: 0.45s; }
+.fade-in-list .list-item:nth-child(10) { animation-delay: 0.5s; }
+.fade-in-list .list-item:nth-child(n+11) { animation-delay: 0.55s; }
+
+/* Level detail page - YouTube playlist style */
+.level-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+@media (max-width: 992px) {
+    .level-detail-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.level-info-panel {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.level-tabs-panel {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.tab-nav {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+.tab-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+.tab-btn:hover {
+    background: #e2e8f0;
+    color: #1e3a8a;
+}
+.tab-btn.active {
+    background: #1e3a8a;
+    color: #fff;
+}
+
+.tab-content {
+    padding: 1.5rem;
+    min-height: 200px;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.5rem 0;
+}
+.pagination-info {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+.per-page-select {
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* Filter tags (multi-select genres) */
+.genre-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.genre-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    background: #e2e8f0;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.genre-tag:hover {
+    background: #cbd5e1;
+}
+.genre-tag.selected {
+    background: #1e3a8a;
+    color: #fff;
+}
+
+/* Link styles */
+a {
+    transition: color 0.2s ease;
+}
+a:hover {
+    color: #f97316 !important;
+}
+
+/* Nav link hover/active */
+.nav-link {
+    transition: transform 0.2s ease, color 0.3s ease;
+}
+.nav-link:hover {
+    transform: translateY(-1px);
+}
+.nav-link:active {
+    transform: translateY(0);
+}
+
+/* Smooth page transitions */
+.content-enter {
+    opacity: 0;
+    animation: contentFadeIn 0.4s ease forwards;
+}
+@keyframes contentFadeIn {
+    to { opacity: 1; }
+}
+
+/* Player profile: floating cube */
+.player-profile-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    align-items: start;
+}
+@media (max-width: 768px) {
+    .player-profile-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.player-cube-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%);
+    border-radius: 16px;
+    box-shadow: inset 0 0 40px rgba(14, 165, 233, 0.1);
+}
+
+.player-cube-float {
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    animation: floatCube 3s ease-in-out infinite;
+    object-fit: cover;
+}
+@keyframes floatCube {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+.player-nickname {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 1.25rem;
+    color: #0f172a;
+}
+
+.player-rank-wrap {
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+.player-rank-wrap.rank-1 {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+    animation: shineGold 2s ease-in-out infinite;
+}
+.player-rank-wrap.rank-2 {
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    color: #475569;
+    box-shadow: 0 0 16px rgba(148, 163, 184, 0.4);
+}
+.player-rank-wrap.rank-3 {
+    background: linear-gradient(135deg, #fed7aa, #fdba74);
+    color: #9a3412;
+    box-shadow: 0 0 14px rgba(251, 146, 60, 0.4);
+}
+.player-rank-wrap.rank-other {
+    background: #f1f5f9;
+    color: #64748b;
+}
+@keyframes shineGold {
+    0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); filter: brightness(1); }
+    50% { box-shadow: 0 0 28px rgba(251, 191, 36, 0.7); filter: brightness(1.08); }
+}
+
+.player-achievements-panel {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+.player-achievement-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s;
+}
+.player-achievement-item .flex-grow-1 {
+    min-width: 0;
+}
+.player-achievement-item .btn {
+    flex-shrink: 0;
+}
+.player-achievement-item:hover {
+    background: #f8fafc;
+}
+.player-achievement-item:last-child {
+    border-bottom: none;
+}
+
+/* Окошко «делят это место» / «игроки с этим местом» */
+.rank-peers-box {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+.rank-peer-link {
+    text-decoration: none;
+    white-space: nowrap;
+}
+.rank-peer-link:hover {
+    color: #1e3a8a !important;
+}
+
+/* Тег Verificator — переливающийся */
+.verificator-tag {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: linear-gradient(110deg, #0ea5e9 0%, #06b6d4 25%, #0ea5e9 50%, #06b6d4 75%, #0ea5e9 100%);
+    background-size: 200% 100%;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4);
+    animation: verificatorShine 3s ease-in-out infinite;
+}
+@keyframes verificatorShine {
+    0%, 100% { background-position: 100% 0; filter: brightness(1); }
+    50% { background-position: 0 0; filter: brightness(1.15); }
+}
+
+/* Тег First Victor на профиле игрока */
+.tag-first-victor {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+}
+
+/* Тег First completed level — самое раннее прохождение */
+.tag-first-completed {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
+}
+
+/* Тег Aivan (уровень есть в aivanlevels) — тёмно-синий переливающийся */
+.tag-aivan {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: linear-gradient(110deg, #1e3a8a 0%, #312e81 25%, #1e3a8a 50%, #312e81 75%, #1e3a8a 100%);
+    background-size: 200% 100%;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.5);
+    animation: aivanTagShine 3s ease-in-out infinite;
+}
+@keyframes aivanTagShine {
+    0%, 100% { background-position: 100% 0; filter: brightness(1); }
+    50% { background-position: 0 0; filter: brightness(1.2); }
+}
+
+/* Спецстраница профиля Aivan (id=1): летающий куб и текст в стиле тега Aivan */
+.aivan-placeholder {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+    padding: 2rem;
+}
+
+/* Круг градиента только за кубом, не доходит до текста */
+.aivan-placeholder-bg {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e3a8a 0%, #312e81 30%, #1e293b 60%, #1e3a8a 100%);
+    background-size: 200% 200%;
+    animation: aivanPlaceholderGradient 6s ease infinite;
+    top: 70px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.aivan-placeholder-cube {
+    position: relative;
+    z-index: 1;
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(30, 58, 138, 0.4);
+    animation: floatCube 3s ease-in-out infinite;
+    object-fit: cover;
+}
+
+/* Текст в стиле тега Aivan: белый на переливающемся тёмно-синем фоне */
+.aivan-placeholder-text {
+    position: relative;
+    z-index: 1;
+    margin-top: 2rem;
+    display: inline-block;
+    padding: 0.6em 1.2em;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    max-width: 420px;
+    color: #fff;
+    background: linear-gradient(110deg, #1e3a8a 0%, #312e81 25%, #1e3a8a 50%, #312e81 75%, #1e3a8a 100%);
+    background-size: 200% 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(30, 58, 138, 0.5);
+    animation: aivanTagShine 3s ease-in-out infinite;
+}
+
+@keyframes aivanPlaceholderGradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Профиль недоступен (нет в системе или заблокирован) */
+.player-unavailable-message {
+    font-size: 1.1rem;
+    color: #64748b;
+}
+
+/* Машина времени */
+.time-machine-timeline-wrap {
+    background: var(--panel-bg, #f8fafc);
+    border: 1px solid var(--border-subtle, #e2e8f0);
+}
+.time-machine-slider {
+    width: 100%;
+    height: 1.5rem;
+    cursor: pointer;
+}
+.tm-list-item {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.tm-list-item.tm-item-enter {
+    animation: tmItemEnter 0.4s ease forwards;
+}
+@keyframes tmItemEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Компактные карточки в одну строку — только на странице Машина времени */
+#tm-list .card {
+    margin-bottom: 0.75rem !important;
+}
+#tm-list .card-body.tm-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0.75rem !important;
+}
+#tm-list .tm-item-img-wrap {
+    flex-shrink: 0;
+}
+#tm-list .tm-list-item img.tm-item-img {
+    width: 70px !important;
+    height: auto;
+    display: block;
+}
+#tm-list .tm-item-meta {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    min-width: 0;
+    flex: 1;
+}
+#tm-list .tm-item-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+#tm-list .tm-item-creator {
+    color: var(--muted-color, #6b7280);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+#tm-list .tm-item-date {
+    color: var(--muted-color, #6b7280);
+    font-size: 0.8rem;
+}
+#tm-list .tm-list-item .btn-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+#tm-list .tm-list-item .tag-aivan {
+    padding: 0.15em 0.4em;
+    font-size: 0.65rem;
+}
+@media (max-width: 768px) {
+    #tm-list .card-body.tm-row {
+        flex-wrap: wrap;
+    }
+    #tm-list .tm-item-meta {
+        flex-basis: 100%;
+    }
+}
