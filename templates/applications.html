@@ -7,6 +7,15 @@ AivanCrate – {{ t.app_title }}
 {% block body %}
 <div class="container mt-5 content-enter">
     <h1 class="text-center mb-4">{{ t.app_title }}: {{ t.app_all if is_aivan else t.app_my }}</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, msg in messages %}
+    <div class="alert alert-{{ 'warning' if category == 'warning' else category or 'info' }} alert-dismissible fade show" role="alert">{{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <p class="text-center mb-4">
         <a href="{{ url_for('applications.new_application') }}" class="btn btn-primary">{{ t.app_new }}</a>
         <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-secondary ms-2">{{ t.nav_change_password }}</a>
@@ -20,46 +29,71 @@ AivanCrate – {{ t.app_title }}
                     <th>#</th>
                     <th>{{ t.app_created }}</th>
                     {% if is_aivan %}<th>{{ t.app_applicant }}</th>{% endif %}
-                    <th>{{ t.app_level }}</th>
                     <th>{{ t.levels_status }}</th>
+                    <th>{{ t.app_level }}</th>
+                    <th>{{ t.app_type_label }}</th>
+                    <th>{{ t.app_reply_column }}</th>
                     {% if is_aivan %}<th>{{ t.app_notes }}</th><th></th>{% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for app in applications %}
-                <tr>
+                {% set apc = ap_completions.get(app.id) %}
+                <tr{% if is_aivan and already_has_completion.get(app.id) %} class="table-warning"{% endif %}>
                     <td>{{ app.id }}</td>
                     <td>{{ app.created_at.strftime('%Y-%m-%d %H:%M') if app.created_at else '—' }}</td>
                     {% if is_aivan %}
                     <td>{{ players.get(app.player_id).nickname if app.player_id in players else app.player_id }}</td>
                     {% endif %}
                     <td>
-                        {% if app.type == 1 and app.level_id and app.level_id in levels %}
-                        <a href="{{ url_for('levels.level_detail', level_id=app.level_id) }}">{{ levels[app.level_id].level_name }}</a>
-                        {% if app.completion_date %}<br><small class="text-muted">{{ t.ext_passed_on }}: {{ app.completion_date }}</small>{% endif %}
+                        <span class="badge app-status app-status-{{ app.status }}">
+                            {% if app.status == 1 %}{{ t.app_status_1 }}{% endif %}
+                            {% if app.status == 2 %}{{ t.app_status_2 }}{% endif %}
+                            {% if app.status == 3 %}{{ t.app_status_3 }}{% endif %}
+                            {% if app.status == 4 %}{{ t.app_status_4 }}{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if is_aivan and already_has_completion.get(app.id) %}
+                        <span class="badge bg-warning text-dark me-1" title="{{ t.app_duplicate_completion_warn }}">{{ t.app_duplicate_completion_short }}</span>
+                        {% endif %}
+                        {% if apc and apc.level_id in levels %}
+                        <a href="{{ url_for('levels.level_detail', level_id=apc.level_id) }}">{{ levels[apc.level_id].level_name }}</a>
+                        {% if apc.completion_date %}<br><small class="text-muted">{{ t.ext_passed_on }}: {{ apc.completion_date }}{% if apc.completion_time %} {{ apc.completion_time.strftime('%H:%M') }}{% endif %}</small>{% endif %}
+                        {% if apc.video_url %}<br><a href="{{ apc.video_url }}" target="_blank" rel="noopener" class="small">🎬 {{ t.levels_watch_completion }}</a>{% endif %}
+                        {% if apc.comment %}<br><small class="text-muted">{{ apc.comment|truncate_chars(60) }}</small>{% endif %}
                         {% else %}
                         —
                         {% endif %}
                     </td>
-                    <td>
-                        {% if app.status == 1 %}{{ t.app_status_1 }}{% endif %}
-                        {% if app.status == 2 %}{{ t.app_status_2 }}{% endif %}
-                        {% if app.status == 3 %}{{ t.app_status_3 }}{% endif %}
-                        {% if app.status == 4 %}{{ t.app_status_4 }}{% endif %}
+                    <td><span class="text-muted">{% if app.type == 1 %}{{ t.app_type_1 }}{% else %}#{{ app.type }}{% endif %}</span></td>
+                    <td class="app-reply-cell">
+                        {% if app.notes %}
+                        <div class="d-flex align-items-start gap-2">
+                            {% if aivan_player %}
+                            <img src="/static/images/player_icons/{{ aivan_player.icon or 'aivan.png' }}" alt="{{ aivan_player.nickname }}" class="rounded-circle flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;" title="{{ aivan_player.nickname }}">
+                            {% endif %}
+                            <span class="small">{{ app.notes }}</span>
+                        </div>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
                     </td>
                     {% if is_aivan %}
                     <td>
                         <form method="post" action="{{ url_for('applications.set_status', app_id=app.id) }}" class="d-inline">
                             <input type="text" name="notes" class="form-control form-control-sm mb-1" placeholder="{{ t.app_notes }}" value="{{ app.notes or '' }}">
-                            <div class="btn-group btn-group-sm">
+                            <button type="submit" name="save_notes" value="1" class="btn btn-outline-secondary btn-sm">{{ t.app_save_notes }}</button>
+                            <div class="btn-group btn-group-sm mt-1">
                                 <button type="submit" name="status" value="1" class="btn btn-outline-secondary">{{ t.app_status_1 }}</button>
                                 <button type="submit" name="status" value="4" class="btn btn-outline-warning">{{ t.app_status_4 }}</button>
+                                <button type="submit" name="status" value="2" class="btn btn-outline-success">{{ t.app_status_2 }}</button>
                                 <button type="submit" name="status" value="3" class="btn btn-outline-danger">{{ t.app_status_3 }}</button>
                             </div>
                         </form>
                     </td>
                     <td>
-                        {% if app.status == 1 and app.type == 1 and app.level_id %}
+                        {% if app.status == 1 and apc %}
                         <form method="post" action="{{ url_for('applications.execute_application', app_id=app.id) }}" class="d-inline">
                             <button type="submit" class="btn btn-success btn-sm">{{ t.app_execute }}</button>
                         </form>
@@ -74,6 +108,13 @@ AivanCrate – {{ t.app_title }}
     {% else %}
     <p class="text-center text-muted">{{ t.player_no_achievements }}</p>
     {% endif %}
+    <style>
+    .app-status { font-weight: 500; }
+    .app-status-1 { background-color: #6c757d; color: #fff; }
+    .app-status-2 { background-color: #198754; color: #fff; }
+    .app-status-3 { background-color: #dc3545; color: #fff; }
+    .app-status-4 { background-color: #ffc107; color: #212529; }
+    </style>
 
     <div class="mt-4">
         <a href="{{ url_for('other.index') }}" class="btn btn-secondary">{{ t.ext_back }}</a>

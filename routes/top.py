@@ -203,6 +203,10 @@ def player_profile(player_id):
 
     creator_levels = levels_by_creator_nickname(player.nickname)
 
+    from flask import g
+    current = g.get('current_player')
+    is_self = current is not None and current.id == player.id
+
     return render_template(
         'player_profile.html',
         player=player,
@@ -215,4 +219,5 @@ def player_profile(player_id):
         first_completed_level_id=first_completed_level_id,
         difficulty_options=DIFFICULTY_OPTIONS,
         current_difficulty=difficulty_filter,
+        is_self=is_self,
     )

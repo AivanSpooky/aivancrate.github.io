@@ -38,6 +38,7 @@
                     <li class="nav-item dropdown ms-2">
                         <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ t.nav_account }}: {{ current_player.nickname }}</a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('top.player_profile', player_id=current_player.id) }}">{{ t.nav_my_profile }}</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('applications.list_applications') }}">{{ t.nav_my_applications }}</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">{{ t.nav_change_password }}</a></li>
                             <li><hr class="dropdown-divider"></li>

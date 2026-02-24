@@ -86,7 +86,7 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        for mod in ('migrate_extremes', 'migrate_completions_time', 'migrate_levels_creation_date', 'migrate_auth_applications'):
+        for mod in ('migrate_extremes', 'migrate_completions_time', 'migrate_levels_creation_date', 'migrate_auth_applications', 'migrate_applications_ap_completions', 'migrate_ap_completions_time'):
             try:
                 __import__(mod).migrate()
             except Exception as e:

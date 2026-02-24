@@ -12,9 +12,12 @@ AivanCrate - {{ t.pass_title }}
             <h2 class="card-title">{{ t.pass_enter }}</h2>
             <div id="textt" class="text-danger mb-3"></div>
             <form method="post" action="{{ url_for('other.passw') }}" id="passForm">
-                <div class="d-flex justify-content-center">
-                    <input type="password" name="passwo" id="passwo" class="form-control w-50" placeholder="{{ t.pass_enter }}">
-                    <button type="submit" class="btn btn-primary ms-2">{{ t.pass_submit }}</button>
+                <div class="d-flex justify-content-center align-items-center gap-1">
+                    <div class="input-group" style="max-width: 50%;">
+                        <input type="password" name="passwo" id="passwo" class="form-control" placeholder="{{ t.pass_enter }}">
+                        <button type="button" class="btn btn-outline-secondary toggle-password" data-target="passwo" title="{{ t.auth_show_password }}" aria-label="{{ t.auth_show_password }}">👁</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary">{{ t.pass_submit }}</button>
                 </div>
             </form>
         </div>
@@ -33,6 +36,15 @@ document.getElementById('passForm').addEventListener('submit', function(e) {
     .then(data => {
         if (data.success) window.location.href = data.redirect || '/ax';
         else document.getElementById('textt').textContent = '{{ t.pass_wrong }}';
+    });
+});
+document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-target');
+        var input = document.getElementById(id);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+        else { input.type = 'password'; btn.textContent = '👁'; }
     });
 });
 {% if notpas %}

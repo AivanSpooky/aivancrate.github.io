@@ -8,6 +8,9 @@ AivanCrate – {{ t.player_profile }}: {{ player.nickname }}
 <div class="container mt-5 content-enter">
     <div class="player-profile-layout">
         <div class="player-cube-wrap">
+            {% if is_self %}
+            <div class="player-this-is-me text-muted small mb-1">{{ t.player_this_is_me }}</div>
+            {% endif %}
             <img src="/static/images/player_icons/{{ player.icon }}" alt="{{ player.nickname }}" class="player-cube-float">
             <div class="player-nickname">{{ player.nickname }}</div>
             <div class="player-rank-wrap {% if rank == 1 %}rank-1{% elif rank == 2 %}rank-2{% elif rank == 3 %}rank-3{% else %}rank-other{% endif %}">

@@ -22,7 +22,10 @@ AivanCrate – {{ t.auth_login_title }}
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">{{ t.auth_password }}</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password" title="{{ t.auth_show_password }}" aria-label="{{ t.auth_show_password }}">👁</button>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">{{ t.auth_submit }}</button>
             </form>
@@ -32,4 +35,15 @@ AivanCrate – {{ t.auth_login_title }}
         </div>
     </div>
 </div>
+<script>
+document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-target');
+        var input = document.getElementById(id);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+        else { input.type = 'password'; btn.textContent = '👁'; }
+    });
+});
+</script>
 {% endblock %}

@@ -93,22 +93,38 @@ APPLICATION_STATUS_QUESTIONS = 4
 
 
 class Application(db.Model):
+    """Общая таблица заявок: игрок, тип, статус, даты, комментарий админа. Детали по типу — в отдельных таблицах."""
     __tablename__ = 'applications'
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
-    type = db.Column(db.Integer, nullable=False)  # тип заявки (1 = добавление прохождения)
+    type = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer, nullable=False, default=APPLICATION_STATUS_PENDING)
     created_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=True)
-    notes = db.Column(db.Text, nullable=True)  # комментарий админа (например при "есть вопросы")
-    # Для type=1: уровень, на который подаётся прохождение
-    level_id = db.Column(db.Integer, db.ForeignKey('aivanlevels.id'), nullable=True)
-    completion_date = db.Column(db.Date, nullable=True)  # желаемая дата прохождения (опционально)
-
-    level = db.relationship('AivanLevels', backref='applications', foreign_keys=[level_id])
+    notes = db.Column(db.Text, nullable=True)  # комментарий Aivan (можно менять в любой момент)
 
     def __repr__(self):
         return '<Application %r>' % self.id
+
+
+class ApCompletion(db.Model):
+    """Заявка на добавление прохождения: уровень, игрок, дата, время (опц.), ссылка на видео (опц.), комментарий."""
+    __tablename__ = 'ap_completions'
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.Integer, db.ForeignKey('applications.id'), nullable=False, unique=True)
+    level_id = db.Column(db.Integer, db.ForeignKey('aivanlevels.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
+    completion_date = db.Column(db.Date, nullable=True)
+    completion_time = db.Column(db.Time, nullable=True)  # опционально
+    video_url = db.Column(db.String(512), nullable=False, default='')  # опционально (в форме); в БД храним ''
+    comment = db.Column(db.Text, nullable=True)  # комментарий заявителя
+
+    application = db.relationship('Application', backref=db.backref('ap_completion', uselist=False), foreign_keys=[application_id])
+    level = db.relationship('AivanLevels', backref='ap_completions', foreign_keys=[level_id])
+    player = db.relationship('Players', backref='ap_completions', foreign_keys=[player_id])
+
+    def __repr__(self):
+        return '<ApCompletion %r>' % self.id
 
 
 class Completions(db.Model):

@@ -6,3 +6,7 @@ dist/
 htmlcov/
 .tox/
 docs/_build/
+static/images/*.png
+static/images/aivanex/*.png
+static/images/aivanl/*.png
+static/images/player_icons/*.png
